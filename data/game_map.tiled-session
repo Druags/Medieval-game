@@ -1,0 +1,30 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "",
+    "expandedProjectPaths": [
+    ],
+    "file.lastUsedOpenFilter": "Все файлы (*)",
+    "fileStates": {
+        "grass_32x32.tsx": {
+            "dynamicWrapping": false,
+            "scaleInEditor": 1
+        },
+        "map.tmx": {
+            "scale": 1.5,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 483.33333333333337,
+                "y": 938.6666666666666
+            }
+        }
+    },
+    "map.height": 40,
+    "openFiles": [
+    ],
+    "project": "game_map.tiled-project",
+    "recentFiles": [
+    ]
+}

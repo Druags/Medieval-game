@@ -1,0 +1,108 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "безымянный.tmx",
+    "expandedProjectPaths": [
+    ],
+    "file.lastUsedOpenFilter": "Все файлы (*)",
+    "fileStates": {
+        "Buildings.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 0.5,
+            "scaleInEditor": 1
+        },
+        "Interactive_objects.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 0.5,
+            "scaleInEditor": 1
+        },
+        "TX Plant.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "countryside.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "flora.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 0.5,
+            "scaleInEditor": 1
+        },
+        "grass_32x32.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 3
+        },
+        "objects.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "shadow_32x32.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "stone_32x32.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "stone_ground_32x32.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 0.5,
+            "scaleInEditor": 1
+        },
+        "stones.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 0.5,
+            "scaleInEditor": 1
+        },
+        "wall_32x32l.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 0.5,
+            "scaleInEditor": 2
+        },
+        "безымянный.tmx": {
+            "scale": 2,
+            "selectedLayer": 7,
+            "viewCenter": {
+                "x": 521,
+                "y": 205.5
+            }
+        }
+    },
+    "last.exportedFilePath": "C:/Users/erago/Desktop/tiled_projects",
+    "last.externalTilesetPath": "C:/Users/erago/Desktop/tiled_projects",
+    "last.imagePath": "C:/Users/erago/Desktop/assets/objects",
+    "map.lastUsedExportFilter": "Все файлы (*)",
+    "map.lastUsedFormat": "tmx",
+    "map.orientation": null,
+    "openFiles": [
+        "безымянный.tmx",
+        "flora.tsx",
+        "stones.tsx",
+        "Interactive_objects.tsx"
+    ],
+    "project": "безымянный.tiled-project",
+    "recentFiles": [
+        "Interactive_objects.tsx",
+        "stones.tsx",
+        "flora.tsx",
+        "безымянный.tmx",
+        "Buildings.tsx",
+        "grass_32x32.tsx",
+        "wall_32x32l.tsx",
+        "stone_ground_32x32.tsx",
+        "objects.tsx",
+        "TX Plant.tsx",
+        "stone_32x32.tsx",
+        "shadow_32x32.tsx"
+    ],
+    "tileset.lastUsedFilter": "Файлы набора тайлов Tiled (*.tsx *.xml)",
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.type": 1
+}
