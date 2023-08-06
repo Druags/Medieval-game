@@ -2,9 +2,15 @@ import pygame
 from settings import *
 
 
-class Player:
-    def __init__(self):
-        self.pos = pygame.math.Vector2()
+class Player(pygame.sprite.Sprite):
+    def __init__(self, pos, group):
+        super().__init__(group)
+        self.pos = pygame.math.Vector2(pos)
+        self.image = pygame.image.load('../data/objects/small_box.png')
+        self.rect = self.image.get_rect(center=self.pos)
+
+        self.z = LAYERS['Main']
+
         self.direction = pygame.math.Vector2()
         self.speed = 200
 
@@ -26,15 +32,14 @@ class Player:
             self.direction.y = 0
 
     def move(self, dt):
-        # print(self.direction.x, self.direction.y)
         # нормализация вектора
         if self.direction.magnitude() > 0:
             self.direction = self.direction.normalize()
-        print(self.direction.x * dt * self.speed)
-        self.pos.x += self.direction.x * dt * self.speed
 
+        self.pos.x += self.direction.x * dt * self.speed
         self.pos.y += self.direction.y * dt * self.speed
-        # print(self.rect.center)
+
+        self.rect.center = (round(self.pos.x), round(self.pos.y))
 
     def update(self, dt):
         self.input()
