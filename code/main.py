@@ -10,7 +10,7 @@ class Game:
         pygame.display.set_caption('My game')
         self.clock = pygame.time.Clock()
         self.level = Level()
-
+        self.font = pygame.font.Font(None, 32)
 
     def run(self):
 
@@ -21,6 +21,9 @@ class Game:
                     sys.exit()
             dt = self.clock.tick() / 1000
             self.level.run(dt)
+            if DEBUG:
+                fps = self.font.render(f'FPS: {int(self.clock.get_fps())}', True, 'green')
+                self.screen.blit(fps, (0, 0))
             pygame.display.update()
 
 
