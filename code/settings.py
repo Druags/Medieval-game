@@ -7,7 +7,7 @@ TILE_SIZE = 32
 
 LAYERS = {
     'Ground': 0,
-    'Main': 1,
+    'Roof': 1,
     'Walls': 2,
-    'Roof': 3,
+    'Main': 3
 }

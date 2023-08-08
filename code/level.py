@@ -3,7 +3,7 @@ from pytmx.util_pygame import load_pygame
 
 from settings import *
 from player import Player
-from sprites import Generic, Tree
+from sprites import Generic, Tree, Wall
 
 
 class Level:
@@ -17,10 +17,6 @@ class Level:
 
     def setup(self):
         tmx_data = load_pygame('../data/game_map.tmx')
-
-        # first_layer = tmx_data.layers[0]
-        # for tile in first_layer.tiles():
-        #     self.display_surface.blit(tile[2], (tile[0] * TILE_SIZE, tile[1] * TILE_SIZE))
         Generic(
             pos=(0, 0),
             surf=pygame.image.load('../data/game_map.png'),
@@ -38,6 +34,18 @@ class Level:
                  surf=obj.image,
                  groups=self.all_sprites,
                  z='Main',
+                 size_difference=size_difference)
+        for x, y, surf in tmx_data.get_layer_by_name('Walls').tiles():
+            Wall(pos=(x, y),
+                 surf=surf,
+                 groups=self.all_sprites,
+                 z='Walls',
+                 size_difference=size_difference)
+        for x, y, surf in tmx_data.get_layer_by_name('Roof_1').tiles():
+            Wall(pos=(x, y),
+                 surf=surf,
+                 groups=self.all_sprites,
+                 z='Roof',
                  size_difference=size_difference)
 
     def run(self, dt):
@@ -71,20 +79,14 @@ class CameraGroup(pygame.sprite.Group):
 
     def custom_draw(self, player):
         self.border_camera(player)
-        offset_text = self.font.render(f'{self.offset}', True, 'green')
-        self.display_surface.blit(offset_text, (10, 10))
         for layer in LAYERS.values():
-            for sprite in self.sprites():
-                if sprite.z == layer:
+            for sprite in sorted(self.sprites(), key=lambda sprite: sprite.rect.y):
+                if sprite.rect.colliderect(player.line_of_sight) and sprite.z == layer:
                     offset_rect = sprite.rect.copy()
                     offset_rect.center -= self.offset
-
                     self.display_surface.blit(sprite.image, offset_rect)
                     if DEBUG:
-                        # if sprite.z == 'Ground':
-                        #     offset_text = self.font.render(f'{offset_rect.center}', True, 'green')
-                        #     self.display_surface.blit(offset_text, (10, 10))
                         if isinstance(sprite, Player):
                             text = self.font.render(f'{player.rect.center}', True, 'green')
                             self.display_surface.blit(text, offset_rect)
-                        pygame.draw.rect(self.display_surface, 'red', offset_rect, 2)
+                        # pygame.draw.rect(self.display_surface, 'red', offset_rect, 2)

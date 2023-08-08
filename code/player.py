@@ -8,8 +8,9 @@ class Player(pygame.sprite.Sprite):
         self.pos = pygame.math.Vector2(pos)
         self.image = pygame.image.load('../data/objects/small_box.png')
         self.rect = self.image.get_rect(center=self.pos)
+        self.line_of_sight = self.rect.copy().inflate((SCREEN_WIDTH*2, SCREEN_HEIGHT*2))
 
-        self.z = LAYERS['Main']
+        self.z = LAYERS['Ground']
 
         self.direction = pygame.math.Vector2()
         self.speed = 200
@@ -40,6 +41,7 @@ class Player(pygame.sprite.Sprite):
         self.pos.y += self.direction.y * dt * self.speed
 
         self.rect.center = (round(self.pos.x), round(self.pos.y))
+        self.line_of_sight.center = (round(self.pos.x), round(self.pos.y))
 
     def update(self, dt):
         self.input()
