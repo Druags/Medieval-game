@@ -3,7 +3,7 @@ from pytmx.util_pygame import load_pygame
 
 from settings import *
 from player import Player
-from sprites import Generic, Tree, Wall
+from sprites import Generic, Tree, Wall, Interactive, Building, GenericObject
 
 
 class Level:
@@ -27,14 +27,21 @@ class Level:
         world_width = self.all_sprites.world_size[0]
         world_height = self.all_sprites.world_size[1]
 
-        size_difference = (world_width//(tmx_data.width*TILE_SIZE), world_height//(tmx_data.height*TILE_SIZE))
+        size_difference = (world_width // (tmx_data.width * TILE_SIZE), world_height // (tmx_data.height * TILE_SIZE))
 
         for obj in tmx_data.get_layer_by_name('Trees'):
             Tree(pos=(obj.x, obj.y),
                  surf=obj.image,
                  groups=self.all_sprites,
-                 z='Main',
+                 z='Trees_before_wall',
                  size_difference=size_difference)
+        for obj in tmx_data.get_layer_by_name('Trees_behind_the_wall'):
+            Tree(pos=(obj.x, obj.y),
+                 surf=obj.image,
+                 groups=self.all_sprites,
+                 z='Trees_behind_the_wall',
+                 size_difference=size_difference)
+
         for x, y, surf in tmx_data.get_layer_by_name('Walls').tiles():
             Wall(pos=(x, y),
                  surf=surf,
@@ -47,6 +54,26 @@ class Level:
                  groups=self.all_sprites,
                  z='Roof',
                  size_difference=size_difference)
+        for obj in tmx_data.get_layer_by_name('Interactive_objects'):
+            Interactive(pos=(obj.x, obj.y),
+                        surf=obj.image,
+                        groups=self.all_sprites,
+                        z='Interactive',
+                        size_difference=size_difference,
+                        name=obj.name)
+        for obj in tmx_data.get_layer_by_name('Buildings'):
+            Building(pos=(obj.x, obj.y),
+                     surf=obj.image,
+                     groups=self.all_sprites,
+                     z='Main',
+                     size_difference=size_difference)
+        for layer in ['Stones', 'Small_plants']:
+            for obj in tmx_data.get_layer_by_name(layer):
+                Building(pos=(obj.x, obj.y),
+                         surf=obj.image,
+                         groups=self.all_sprites,
+                         z='Decorations',
+                         size_difference=size_difference)
 
     def run(self, dt):
         self.display_surface.fill('black')
