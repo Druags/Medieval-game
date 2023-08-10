@@ -3,7 +3,7 @@ from pytmx.util_pygame import load_pygame
 
 from settings import *
 from player import Player
-from sprites import Generic, Tree, Wall, Interactive, Building, GenericObject
+from sprites import Generic, Tree, Wall, Interactive, Building, Roof
 
 
 class Level:
@@ -12,7 +12,7 @@ class Level:
 
         self.all_sprites = CameraGroup()
 
-        self.player = Player((200, 200), self.all_sprites)
+        self.player = Player((700,  1200), self.all_sprites)
         self.setup()
 
     def setup(self):
@@ -29,6 +29,29 @@ class Level:
 
         size_difference = (world_width // (tmx_data.width * TILE_SIZE), world_height // (tmx_data.height * TILE_SIZE))
 
+
+
+        for x, y, surf in tmx_data.get_layer_by_name('Walls_front').tiles():
+            Wall(pos=(x, y),
+                 surf=surf,
+                 groups=self.all_sprites,
+                 z='Walls',
+                 size_difference=size_difference,
+                 wall_type='front')
+        for x, y, surf in tmx_data.get_layer_by_name('Walls_back').tiles():
+            Wall(pos=(x, y),
+                 surf=surf,
+                 groups=self.all_sprites,
+                 z='Walls',
+                 size_difference=size_difference,
+                 wall_type='back')
+        for x, y, surf in tmx_data.get_layer_by_name('Roof_1').tiles():
+            Roof(pos=(x, y),
+                 surf=surf,
+                 groups=self.all_sprites,
+                 z='Roof',
+                 size_difference=size_difference)
+
         for obj in tmx_data.get_layer_by_name('Trees'):
             Tree(pos=(obj.x, obj.y),
                  surf=obj.image,
@@ -42,18 +65,6 @@ class Level:
                  z='Trees_behind_the_wall',
                  size_difference=size_difference)
 
-        for x, y, surf in tmx_data.get_layer_by_name('Walls').tiles():
-            Wall(pos=(x, y),
-                 surf=surf,
-                 groups=self.all_sprites,
-                 z='Walls',
-                 size_difference=size_difference)
-        for x, y, surf in tmx_data.get_layer_by_name('Roof_1').tiles():
-            Wall(pos=(x, y),
-                 surf=surf,
-                 groups=self.all_sprites,
-                 z='Roof',
-                 size_difference=size_difference)
         for obj in tmx_data.get_layer_by_name('Interactive_objects'):
             Interactive(pos=(obj.x, obj.y),
                         surf=obj.image,
@@ -107,7 +118,7 @@ class CameraGroup(pygame.sprite.Group):
     def custom_draw(self, player):
         self.border_camera(player)
         for layer in LAYERS.values():
-            for sprite in sorted(self.sprites(), key=lambda sprite: sprite.rect.y):
+            for sprite in sorted(self.sprites(), key=lambda sprite: sprite.rect.centery):
                 if sprite.rect.colliderect(player.line_of_sight) and sprite.z == layer:
                     offset_rect = sprite.rect.copy()
                     offset_rect.center -= self.offset

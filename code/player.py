@@ -10,7 +10,7 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=self.pos)
         self.line_of_sight = self.rect.copy().inflate((SCREEN_WIDTH*2, SCREEN_HEIGHT*2))
 
-        self.z = LAYERS['Ground']
+        self.z = LAYERS['Main']
 
         self.direction = pygame.math.Vector2()
         self.speed = 200
