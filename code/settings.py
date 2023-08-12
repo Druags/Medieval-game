@@ -6,12 +6,12 @@ SCREEN_HEIGHT = 800
 TILE_SIZE = 32
 
 LAYERS = {
-    'Ground': 0,
-    'Trees_behind_the_wall': 1,
-    'Roof': 3,
-    'Walls': 4,
-    'Trees_before_wall': 5,
-    'Interactive': 6,
-    'Decorations': 7,
-    'Main': 8
+    'Ground': 1,
+    'Roof': 2,
+    'Walls_front': 3,
+    'Trees': 4,
+    'Interactive': 5,
+    'Main': 6,
+    'Walls_back': 7,
+    'Decorations': 8,
 }

@@ -11,8 +11,9 @@ class Level:
         self.display_surface = pygame.display.get_surface()
 
         self.all_sprites = CameraGroup()
+        self.collision_sprites = pygame.sprite.Group()
 
-        self.player = Player((700,  1200), self.all_sprites)
+        self.player = Player((700,  1600), self.all_sprites, self.collision_sprites)
         self.setup()
 
     def setup(self):
@@ -29,20 +30,16 @@ class Level:
 
         size_difference = (world_width // (tmx_data.width * TILE_SIZE), world_height // (tmx_data.height * TILE_SIZE))
 
-
-
         for x, y, surf in tmx_data.get_layer_by_name('Walls_front').tiles():
             Wall(pos=(x, y),
                  surf=surf,
-                 groups=self.all_sprites,
-                 z='Walls',
+                 groups=[self.all_sprites, self.collision_sprites],
                  size_difference=size_difference,
                  wall_type='front')
         for x, y, surf in tmx_data.get_layer_by_name('Walls_back').tiles():
             Wall(pos=(x, y),
                  surf=surf,
-                 groups=self.all_sprites,
-                 z='Walls',
+                 groups=[self.all_sprites, self.collision_sprites],
                  size_difference=size_difference,
                  wall_type='back')
         for x, y, surf in tmx_data.get_layer_by_name('Roof_1').tiles():
@@ -55,34 +52,28 @@ class Level:
         for obj in tmx_data.get_layer_by_name('Trees'):
             Tree(pos=(obj.x, obj.y),
                  surf=obj.image,
-                 groups=self.all_sprites,
-                 z='Trees_before_wall',
-                 size_difference=size_difference)
-        for obj in tmx_data.get_layer_by_name('Trees_behind_the_wall'):
-            Tree(pos=(obj.x, obj.y),
-                 surf=obj.image,
-                 groups=self.all_sprites,
-                 z='Trees_behind_the_wall',
+                 groups=[self.all_sprites, self.collision_sprites],
+                 z='Trees',
                  size_difference=size_difference)
 
         for obj in tmx_data.get_layer_by_name('Interactive_objects'):
             Interactive(pos=(obj.x, obj.y),
                         surf=obj.image,
-                        groups=self.all_sprites,
+                        groups=[self.all_sprites, self.collision_sprites],
                         z='Interactive',
                         size_difference=size_difference,
                         name=obj.name)
         for obj in tmx_data.get_layer_by_name('Buildings'):
             Building(pos=(obj.x, obj.y),
                      surf=obj.image,
-                     groups=self.all_sprites,
+                     groups=[self.all_sprites, self.collision_sprites],
                      z='Main',
                      size_difference=size_difference)
         for layer in ['Stones', 'Small_plants']:
             for obj in tmx_data.get_layer_by_name(layer):
                 Building(pos=(obj.x, obj.y),
                          surf=obj.image,
-                         groups=self.all_sprites,
+                         groups=[self.all_sprites, self.collision_sprites],
                          z='Decorations',
                          size_difference=size_difference)
 
@@ -123,8 +114,15 @@ class CameraGroup(pygame.sprite.Group):
                     offset_rect = sprite.rect.copy()
                     offset_rect.center -= self.offset
                     self.display_surface.blit(sprite.image, offset_rect)
+
+
                     if DEBUG:
+                        offset_rect = sprite.hitbox.copy()
+                        offset_rect.center -= self.offset
+
                         if isinstance(sprite, Player):
                             text = self.font.render(f'{player.rect.center}', True, 'green')
                             self.display_surface.blit(text, offset_rect)
+                            pygame.draw.rect(self.display_surface, 'green', offset_rect, 4)
+                        pygame.draw.rect(self.display_surface, 'red', offset_rect, 2)
                         # pygame.draw.rect(self.display_surface, 'red', offset_rect, 2)

@@ -10,6 +10,7 @@ class Generic(pygame.sprite.Sprite):
         self.pos = pos
         self.rect = self.image.get_rect(topleft=pos)
         self.z = LAYERS[z]
+        self.hitbox = self.rect.copy()
 
 
 # Спрайты на основе объектов
@@ -40,12 +41,16 @@ class Building(GenericObject):
 
 # Спрайты на основе тайлов
 class Wall(Generic):
-    def __init__(self, pos, surf, groups, z, size_difference, wall_type):
+    def __init__(self, pos, surf, groups, size_difference, wall_type):
         size = surf.get_size()
         surf = pygame.transform.scale(surf, (size[0] * size_difference[0], size[1] * size_difference[1]))
         pos = [pos[i] * size_difference[i] * TILE_SIZE for i in range(2)]
-        super().__init__(pos, surf, groups, z)
+        super().__init__(pos, surf, groups)
         self.wall_type = wall_type
+        if self.wall_type == 'back':
+            self.z = LAYERS['Walls_back']
+        elif self.wall_type == 'front':
+            self.z = LAYERS['Walls_front']
 
 
 class Roof(Generic):
