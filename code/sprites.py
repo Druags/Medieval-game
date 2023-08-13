@@ -32,6 +32,8 @@ class Interactive(GenericObject):
         super().__init__(pos, surf, groups, z, size_difference)
         self.name = name
         self.active = False if any([name in self.name for name in ['arch', 'ladder']]) else True
+        if not self.active:
+            self.hitbox = None
 
 
 class Building(GenericObject):
@@ -49,6 +51,7 @@ class Wall(Generic):
         self.wall_type = wall_type
         if self.wall_type == 'back':
             self.z = LAYERS['Walls_back']
+            self.hitbox = None
         elif self.wall_type == 'front':
             self.z = LAYERS['Walls_front']
 

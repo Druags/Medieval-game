@@ -117,12 +117,13 @@ class CameraGroup(pygame.sprite.Group):
 
 
                     if DEBUG:
-                        offset_rect = sprite.hitbox.copy()
-                        offset_rect.center -= self.offset
+                        if hasattr(sprite, 'hitbox') and sprite.hitbox:
+                            offset_rect = sprite.hitbox.copy()
+                            offset_rect.center -= self.offset
 
-                        if isinstance(sprite, Player):
-                            text = self.font.render(f'{player.rect.center}', True, 'green')
-                            self.display_surface.blit(text, offset_rect)
-                            pygame.draw.rect(self.display_surface, 'green', offset_rect, 4)
+                            if isinstance(sprite, Player):
+                                text = self.font.render(f'{player.rect.center}', True, 'green')
+                                self.display_surface.blit(text, offset_rect)
+                                pygame.draw.rect(self.display_surface, 'green', offset_rect, 4)
                         pygame.draw.rect(self.display_surface, 'red', offset_rect, 2)
                         # pygame.draw.rect(self.display_surface, 'red', offset_rect, 2)
