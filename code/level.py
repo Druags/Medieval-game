@@ -3,7 +3,8 @@ from pytmx.util_pygame import load_pygame
 
 from settings import *
 from player import Player
-from sprites import Generic, Tree, Wall, Interactive, Building, Roof
+from sprites import Generic, Tree, Wall, Interactive, Building, Roof, Decoration
+from borders import Border
 
 
 class Level:
@@ -12,8 +13,9 @@ class Level:
 
         self.all_sprites = CameraGroup()
         self.collision_sprites = pygame.sprite.Group()
+        self.borders = pygame.sprite.Group()
 
-        self.player = Player((700,  1600), self.all_sprites, self.collision_sprites)
+        self.player = Player((700, 1600), self.all_sprites, self.collision_sprites)
         self.setup()
 
     def setup(self):
@@ -71,11 +73,17 @@ class Level:
                      size_difference=size_difference)
         for layer in ['Stones', 'Small_plants']:
             for obj in tmx_data.get_layer_by_name(layer):
-                Building(pos=(obj.x, obj.y),
-                         surf=obj.image,
-                         groups=[self.all_sprites, self.collision_sprites],
-                         z='Decorations',
-                         size_difference=size_difference)
+                Decoration(pos=(obj.x, obj.y),
+                           surf=obj.image,
+                           groups=[self.all_sprites, self.collision_sprites],
+                           z='Decorations',
+                           size_difference=size_difference)
+        for obj in tmx_data.get_layer_by_name('Borders'):
+            Border(pos=(round(obj.x), round(obj.y)),
+                   size=(round(obj.width), round(obj.height)),
+                   groups=[self.all_sprites, self.borders],
+                   size_difference=size_difference
+                   )
 
     def run(self, dt):
         self.display_surface.fill('black')
@@ -116,6 +124,7 @@ class CameraGroup(pygame.sprite.Group):
                     self.display_surface.blit(sprite.image, offset_rect)
 
                     if DEBUG:
+
                         if hasattr(sprite, 'hitbox') and sprite.hitbox:
                             offset_rect = sprite.hitbox.copy()
                             offset_rect.center -= self.offset

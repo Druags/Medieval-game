@@ -22,6 +22,11 @@ class GenericObject(Generic):
         super().__init__(pos, surf, groups, z)
 
 
+class Decoration(GenericObject):
+    def __init__(self, pos, surf, groups, z, size_difference):
+        super().__init__(pos, surf, groups, z, size_difference)
+
+
 class Tree(GenericObject):
     def __init__(self, pos, surf, groups, z, size_difference):
         super().__init__(pos, surf, groups, z, size_difference)
