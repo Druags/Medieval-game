@@ -115,7 +115,6 @@ class CameraGroup(pygame.sprite.Group):
                     offset_rect.center -= self.offset
                     self.display_surface.blit(sprite.image, offset_rect)
 
-
                     if DEBUG:
                         if hasattr(sprite, 'hitbox') and sprite.hitbox:
                             offset_rect = sprite.hitbox.copy()
