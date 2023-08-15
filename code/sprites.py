@@ -11,6 +11,10 @@ class Generic(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=pos)
         self.z = LAYERS[z]
         self.hitbox = self.rect.copy()
+        self.hitbox_status = True
+
+    def update_status(self):
+        self.hitbox_status = not self.hitbox_status
 
 
 # Спрайты на основе объектов
@@ -37,8 +41,6 @@ class Interactive(GenericObject):
         super().__init__(pos, surf, groups, z, size_difference)
         self.name = name
         self.active = False if any([name in self.name for name in ['arch', 'ladder']]) else True
-        if not self.active:
-            self.hitbox = None
 
 
 class Building(GenericObject):

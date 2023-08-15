@@ -13,9 +13,10 @@ class Level:
 
         self.all_sprites = CameraGroup()
         self.collision_sprites = pygame.sprite.Group()
+        self.interactive_sprites = pygame.sprite.Group()
         self.borders = pygame.sprite.Group()
 
-        self.player = Player((700, 1600), self.all_sprites, self.collision_sprites)
+        self.player = Player((700, 1600), self.all_sprites, self.collision_sprites, self.interactive_sprites, self.borders)
         self.setup()
 
     def setup(self):
@@ -61,7 +62,7 @@ class Level:
         for obj in tmx_data.get_layer_by_name('Interactive_objects'):
             Interactive(pos=(obj.x, obj.y),
                         surf=obj.image,
-                        groups=[self.all_sprites, self.collision_sprites],
+                        groups=[self.all_sprites, self.interactive_sprites],
                         z='Interactive',
                         size_difference=size_difference,
                         name=obj.name)
@@ -75,13 +76,13 @@ class Level:
             for obj in tmx_data.get_layer_by_name(layer):
                 Decoration(pos=(obj.x, obj.y),
                            surf=obj.image,
-                           groups=[self.all_sprites, self.collision_sprites],
+                           groups=[self.all_sprites],
                            z='Decorations',
                            size_difference=size_difference)
         for obj in tmx_data.get_layer_by_name('Borders'):
             Border(pos=(round(obj.x), round(obj.y)),
                    size=(round(obj.width), round(obj.height)),
-                   groups=[self.all_sprites, self.borders],
+                   groups=[self.collision_sprites, self.borders],
                    size_difference=size_difference
                    )
 
