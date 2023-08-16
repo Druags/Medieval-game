@@ -29,11 +29,14 @@ class GenericObject(Generic):
 class Decoration(GenericObject):
     def __init__(self, pos, surf, groups, z, size_difference):
         super().__init__(pos, surf, groups, z, size_difference)
+        self.hitbox = None
 
 
 class Tree(GenericObject):
     def __init__(self, pos, surf, groups, z, size_difference):
         super().__init__(pos, surf, groups, z, size_difference)
+        self.hitbox = self.hitbox.inflate((-200, -200))
+        self.hitbox.top += 100
 
 
 class Interactive(GenericObject):
@@ -42,10 +45,22 @@ class Interactive(GenericObject):
         self.name = name
         self.active = False if any([name in self.name for name in ['arch', 'ladder']]) else True
 
+        if 'runestone' in self.name:
+            self.hitbox = pygame.Rect(self.hitbox.x, self.hitbox.y, self.hitbox.width, 50)
+            self.hitbox.bottom = self.rect.bottom
+        elif 'portal' in self.name:
+            self.hitbox = self.hitbox.inflate((-60*size_difference[0], -50*size_difference[1]))
+            self.z = LAYERS['Ground']
+        elif 'ladder' in self.name:
+            self.z = LAYERS['Interactive']
+        self.interaction_hitbox = self.hitbox.inflate((20*size_difference[0], 20*size_difference[1]))
+
 
 class Building(GenericObject):
     def __init__(self, pos, surf, groups, z, size_difference):
         super().__init__(pos, surf, groups, z, size_difference)
+        self.hitbox = pygame.Rect(self.hitbox.x, self.hitbox.y, self.hitbox.width, 50)
+        self.hitbox.bottom = self.rect.bottom
 
 
 # Спрайты на основе тайлов

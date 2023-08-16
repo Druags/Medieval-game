@@ -63,14 +63,14 @@ class Level:
             Interactive(pos=(obj.x, obj.y),
                         surf=obj.image,
                         groups=[self.all_sprites, self.interactive_sprites],
-                        z='Interactive',
+                        z='Main',
                         size_difference=size_difference,
                         name=obj.name)
         for obj in tmx_data.get_layer_by_name('Buildings'):
             Building(pos=(obj.x, obj.y),
                      surf=obj.image,
                      groups=[self.all_sprites, self.collision_sprites],
-                     z='Main',
+                     z='Second_floor_buildings',
                      size_difference=size_difference)
         for layer in ['Stones', 'Small_plants']:
             for obj in tmx_data.get_layer_by_name(layer):
@@ -88,8 +88,8 @@ class Level:
 
     def run(self, dt):
         self.display_surface.fill('black')
-        self.player.update(dt)
         self.all_sprites.custom_draw(self.player)
+        self.player.update(dt)
 
 
 class CameraGroup(pygame.sprite.Group):
@@ -125,14 +125,14 @@ class CameraGroup(pygame.sprite.Group):
                     self.display_surface.blit(sprite.image, offset_rect)
 
                     if DEBUG:
-
                         if hasattr(sprite, 'hitbox') and sprite.hitbox:
                             offset_rect = sprite.hitbox.copy()
                             offset_rect.center -= self.offset
 
                             if isinstance(sprite, Player):
+                                sprite.offset = offset_rect
                                 text = self.font.render(f'{player.rect.center}', True, 'green')
                                 self.display_surface.blit(text, offset_rect)
                                 pygame.draw.rect(self.display_surface, 'green', offset_rect, 4)
-                        pygame.draw.rect(self.display_surface, 'red', offset_rect, 2)
+                            pygame.draw.rect(self.display_surface, 'red', offset_rect, 2)
                         # pygame.draw.rect(self.display_surface, 'red', offset_rect, 2)
