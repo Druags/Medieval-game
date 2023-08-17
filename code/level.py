@@ -115,6 +115,7 @@ class CameraGroup(pygame.sprite.Group):
         else:
             self.offset.y = player.pos.y - SCREEN_HEIGHT // 2
 
+
     def custom_draw(self, player):
         self.border_camera(player)
         for layer in LAYERS.values():
@@ -122,6 +123,9 @@ class CameraGroup(pygame.sprite.Group):
                 if sprite.rect.colliderect(player.line_of_sight) and sprite.z == layer:
                     offset_rect = sprite.rect.copy()
                     offset_rect.center -= self.offset
+                    copy_sight = player.line_of_sight.copy()
+                    copy_sight.center -= self.offset
+                    m_pos = pygame.mouse.get_pos()
                     self.display_surface.blit(sprite.image, offset_rect)
 
                     if DEBUG:
