@@ -15,5 +15,6 @@ LAYERS = {
     'Walls_back': 7,
     'Decorations': 8,
     'Second_floor': 9,
-    'Second_floor_buildings': 10
+    'Second_floor_buildings': 10,
+    'Second_floor_roof': 11
 }

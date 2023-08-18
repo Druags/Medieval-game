@@ -22,3 +22,6 @@ class HoverInteractive:
     def update(self):
         if self.drawing:
             self.draw()
+            pygame.mouse.set_visible(False)
+        else:
+            pygame.mouse.set_visible(True)

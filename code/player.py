@@ -92,11 +92,6 @@ class Player(pygame.sprite.Sprite):
                     self.overlay.drawing = False
                     self.overlay.sprite_hovered = None
 
-                if self.overlay.drawing:
-                    pygame.mouse.set_visible(False)
-                else:
-                    pygame.mouse.set_visible(True)
-
             else:
                 if sprite.name == 'ladder' and self.hitbox.colliderect(sprite.hitbox):
                     self.collide_ladders(sprite)

@@ -51,7 +51,12 @@ class Level:
                  groups=self.all_sprites,
                  z='Roof',
                  size_difference=size_difference)
-
+        for x, y, surf in tmx_data.get_layer_by_name('Roof_2').tiles():
+            Roof(pos=(x, y),
+                 surf=surf,
+                 groups=self.all_sprites,
+                 z='Second_floor_roof',
+                 size_difference=size_difference)
         for obj in tmx_data.get_layer_by_name('Trees'):
             Tree(pos=(obj.x, obj.y),
                  surf=obj.image,
@@ -64,6 +69,13 @@ class Level:
                         surf=obj.image,
                         groups=[self.all_sprites, self.interactive_sprites],
                         z='Main',
+                        size_difference=size_difference,
+                        name=obj.name)
+        for obj in tmx_data.get_layer_by_name('Interactive_objects_second_floor'):
+            Interactive(pos=(obj.x, obj.y),
+                        surf=obj.image,
+                        groups=[self.all_sprites, self.interactive_sprites],
+                        z='Second_floor_buildings',
                         size_difference=size_difference,
                         name=obj.name)
         for obj in tmx_data.get_layer_by_name('Buildings'):
