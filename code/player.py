@@ -1,7 +1,8 @@
 import pygame
 from settings import *
 from overlay import HoverInteractive
-
+from timer import Timer
+from borders import Border
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos, group, collision_sprites, interactive_sprites, borders):
@@ -25,6 +26,10 @@ class Player(pygame.sprite.Sprite):
 
         self.overlay = HoverInteractive()
 
+        self.timers = {
+            'ladder': Timer(1000)
+        }
+
     def input(self):
         keys = pygame.key.get_pressed()
 
@@ -41,6 +46,10 @@ class Player(pygame.sprite.Sprite):
             self.direction.y = 1
         else:
             self.direction.y = 0
+
+    def update_timers(self):
+        for timer in self.timers.values():
+            timer.update()
 
     def collide(self, sprite, direction):
         if sprite.hitbox.colliderect(self.hitbox):
@@ -63,10 +72,14 @@ class Player(pygame.sprite.Sprite):
                 self.pos.y = self.hitbox.centery
 
     def collide_ladders(self, sprite):
-        if self.hitbox.bottom > sprite.hitbox.top + 10:
-            self.z = LAYERS['Main']
-        elif self.hitbox.top < sprite.hitbox.bottom - 10:
+        if self.direction.y == -1:
             self.z = LAYERS['Second_floor']
+            for border in self.borders:
+                 border.activate_hitbox()
+        elif self.direction.y == 1:
+            self.z = LAYERS['Main']
+            for border in self.borders:
+                 border.deactivate_hitbox()
 
     def check_mouse(self, sprite):
         mouse_pos = pygame.mouse.get_pos()
@@ -97,7 +110,10 @@ class Player(pygame.sprite.Sprite):
                     self.collide_ladders(sprite)
 
         for sprite in self.collision_sprites.sprites():
+
             if hasattr(sprite, 'hitbox') and sprite.hitbox and sprite.hitbox_status:
+                if isinstance(sprite, Border):
+                    print(sprite.hitbox_status)
                 self.collide(sprite, direction)
 
     def move(self, dt):
@@ -119,6 +135,8 @@ class Player(pygame.sprite.Sprite):
         self.line_of_sight.center = (round(self.hitbox.x), round(self.hitbox.y))
 
     def update(self, dt):
+        # print(self.timers['ladder'].active)
         self.input()
+        self.update_timers()
         self.overlay.update()
         self.move(dt)

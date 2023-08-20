@@ -11,6 +11,8 @@ class Border(pygame.sprite.Sprite):
         self.hitbox = self.rect.copy()
         self.hitbox_status = True
 
-    def update_status(self):
-        self.hitbox_status = not self.hitbox_status
+    def activate_hitbox(self):
+        self.hitbox_status = True
 
+    def deactivate_hitbox(self):
+        self.hitbox_status = False
