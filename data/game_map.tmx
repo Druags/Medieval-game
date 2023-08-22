@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.1" orientation="orthogonal" renderorder="right-down" width="30" height="40" tilewidth="32" tileheight="32" infinite="0" nextlayerid="17" nextobjectid="341">
+<map version="1.10" tiledversion="1.10.1" orientation="orthogonal" renderorder="right-down" width="30" height="40" tilewidth="32" tileheight="32" infinite="0" nextlayerid="18" nextobjectid="345">
  <tileset firstgid="1" source="grass_32x32.tsx"/>
  <tileset firstgid="65" source="wall_32x32l.tsx"/>
  <tileset firstgid="321" source="flora.tsx"/>
@@ -128,9 +128,9 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,1188,0,0,0,0,0,0,0,0,0,0,1188,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,1188,0,0,0,0,0,0,0,0,0,0,1188,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,1188,1188,1188,1188,1188,1188,1188,1188,1188,1188,1188,1188,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,619,669,667,669,668,670,667,667,0,0,670,668,669,667,669,631,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,635,685,685,686,683,683,683,683,0,0,683,685,683,683,686,647,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -438,16 +438,22 @@
   <object id="277" gid="434" x="795.167" y="980" width="27" height="25"/>
   <object id="281" gid="433" x="913.667" y="1054.17" width="22" height="19"/>
  </objectgroup>
- <objectgroup id="15" name="Borders">
+ <objectgroup id="15" name="Borders_second_floor">
   <object id="331" x="0" y="512.5" width="960" height="7"/>
-  <object id="332" x="226" y="928" width="508" height="7"/>
+  <object id="332" x="226" y="928" width="508" height="3.5"/>
   <object id="333" x="727.5" y="639" width="7.5" height="286"/>
-  <object id="334" x="639" y="640" width="7" height="198"/>
-  <object id="335" x="312.5" y="830.5" width="326" height="8"/>
-  <object id="336" x="311.5" y="640" width="7.5" height="191"/>
-  <object id="337" x="224.5" y="638.5" width="7" height="293.5"/>
+  <object id="334" x="640" y="640" width="6" height="198"/>
+  <object id="335" x="312.5" y="836" width="326" height="2.5"/>
+  <object id="336" x="311.5" y="640" width="10.5" height="191"/>
+  <object id="337" x="228.5" y="638.5" width="3" height="293.5"/>
   <object id="338" x="0" y="640" width="225" height="5.5"/>
   <object id="339" x="380" y="638.5" width="198.5" height="8"/>
   <object id="340" x="735.5" y="639.5" width="224" height="7"/>
+ </objectgroup>
+ <objectgroup id="17" name="Borders_first_floor">
+  <object id="341" x="312" y="641.5" width="9.5" height="252"/>
+  <object id="342" x="321" y="896.5" width="319" height="9.5"/>
+  <object id="343" x="640" y="641" width="9" height="254.5"/>
+  <object id="344" x="378.5" y="639" width="199" height="7.5"/>
  </objectgroup>
 </map>

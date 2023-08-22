@@ -20,10 +20,15 @@ class Generic(pygame.sprite.Sprite):
 # Спрайты на основе объектов
 class GenericObject(Generic):
     def __init__(self, pos, surf, groups, z, size_difference):
-        size = surf.get_size()
-        surf = pygame.transform.scale(surf, (size[0] * size_difference[0], size[1] * size_difference[1]))
+        self.size = surf.get_size()
+        self.size_difference = size_difference
+        surf = self.resize_surf(surf)
         pos = [pos[i] * size_difference[i] for i in range(2)]
         super().__init__(pos, surf, groups, z)
+
+    def resize_surf(self, surf):
+        return pygame.transform.scale(surf,
+                                      (self.size[0] * self.size_difference[0], self.size[1] * self.size_difference[1]))
 
 
 class Decoration(GenericObject):
@@ -53,7 +58,22 @@ class Interactive(GenericObject):
             self.z = LAYERS['Ground']
         elif 'ladder' in self.name:
             self.z = LAYERS['Interactive']
+        elif 'door' in self.name:
+            closed_door = self.resize_surf(surf)
+            opened_door = self.resize_surf(pygame.image.load('../data/objects/open_door.png'))
+            self.z = LAYERS['Ground']
+            self.surfaces = [closed_door, opened_door]
+            self.current_surf = 0
+            self.image = self.surfaces[self.current_surf]
+
         self.interaction_hitbox = self.hitbox.inflate((20*size_difference[0], 20*size_difference[1]))
+
+    def change_surf(self):
+        if self.current_surf == 0:
+            self.current_surf = 1
+        else:
+            self.current_surf = 0
+        self.image = self.surfaces[self.current_surf]
 
 
 class Building(GenericObject):

@@ -91,11 +91,19 @@ class Level:
                            groups=[self.all_sprites],
                            z='Decorations',
                            size_difference=size_difference)
-        for obj in tmx_data.get_layer_by_name('Borders'):
+        for obj in tmx_data.get_layer_by_name('Borders_first_floor'):
             Border(pos=(round(obj.x), round(obj.y)),
                    size=(round(obj.width), round(obj.height)),
-                   groups=[self.collision_sprites, self.borders],
-                   size_difference=size_difference
+                   groups=[self.borders],
+                   size_difference=size_difference,
+                   floor=0
+                   )
+        for obj in tmx_data.get_layer_by_name('Borders_second_floor'):
+            Border(pos=(round(obj.x), round(obj.y)),
+                   size=(round(obj.width), round(obj.height)),
+                   groups=[self.borders],
+                   size_difference=size_difference,
+                   floor=1
                    )
 
     def run(self, dt):

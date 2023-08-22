@@ -4,6 +4,7 @@ from overlay import HoverInteractive
 from timer import Timer
 from borders import Border
 
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos, group, collision_sprites, interactive_sprites, borders):
         super().__init__(group)
@@ -13,6 +14,7 @@ class Player(pygame.sprite.Sprite):
         self.line_of_sight = self.rect.copy().inflate((SCREEN_WIDTH * 1.5, SCREEN_HEIGHT * 1.5))
 
         self.hitbox = self.rect.copy()
+        self.hitbox_active = True
         self.collision_sprites = collision_sprites
         self.interactive_sprites = interactive_sprites
         self.borders = borders
@@ -26,12 +28,19 @@ class Player(pygame.sprite.Sprite):
 
         self.overlay = HoverInteractive()
 
+        self.current_floor = 0
+
         self.timers = {
-            'ladder': Timer(1000)
+            'ladder_timer': Timer(1000),
+            'input_timer': Timer(200)
         }
 
     def input(self):
         keys = pygame.key.get_pressed()
+        if DEBUG:
+            if keys[pygame.K_SPACE] and not self.timers['input_timer'].active:
+                self.hitbox_active = not self.hitbox_active
+                self.timers['input_timer'].activate()
 
         if keys[pygame.K_LEFT]:
             self.direction.x = -1
@@ -74,12 +83,44 @@ class Player(pygame.sprite.Sprite):
     def collide_ladders(self, sprite):
         if self.direction.y == -1:
             self.z = LAYERS['Second_floor']
-            for border in self.borders:
-                 border.activate_hitbox()
+            self.current_floor = 1
         elif self.direction.y == 1:
             self.z = LAYERS['Main']
-            for border in self.borders:
-                 border.deactivate_hitbox()
+            self.current_floor = 0
+
+    def collision_check(self, direction):
+        if self.hitbox_active:
+            for sprite in self.interactive_sprites.sprites():
+                if sprite.active:
+                    self.collide(sprite, direction)
+                    if sprite.interaction_hitbox.colliderect(self.hitbox) and self.check_mouse(sprite):
+                        self.overlay.sprite_hovered = sprite
+
+                    if self.overlay.sprite_hovered and \
+                            self.overlay.sprite_hovered.interaction_hitbox.colliderect(self.hitbox) and \
+                            self.check_mouse(self.overlay.sprite_hovered):
+                        self.overlay.drawing = True
+                        buttons = pygame.mouse.get_pressed()
+
+                        if buttons[0] and not self.timers['input_timer'].active:
+                            self.overlay.sprite_hovered.change_surf()
+                            print(self.overlay.sprite_hovered.current_surf)
+                            self.timers['input_timer'].activate()
+                    else:
+                        self.overlay.drawing = False
+                        self.overlay.sprite_hovered = None
+
+                else:
+                    if sprite.name == 'ladder' and self.hitbox.colliderect(sprite.hitbox):
+                        self.collide_ladders(sprite)
+
+            for sprite in self.collision_sprites.sprites():
+                if hasattr(sprite, 'hitbox') and sprite.hitbox and sprite.hitbox_status:
+                    self.collide(sprite, direction)
+
+            for sprite in self.borders.sprites():
+                if sprite.floor == self.current_floor:
+                    self.collide(sprite, direction)
 
     def check_mouse(self, sprite):
         mouse_pos = pygame.mouse.get_pos()
@@ -89,32 +130,6 @@ class Player(pygame.sprite.Sprite):
             return True
         else:
             return False
-
-    def collision_check(self, direction):
-        for sprite in self.interactive_sprites.sprites():
-            if sprite.active:
-                self.collide(sprite, direction)
-                if sprite.interaction_hitbox.colliderect(self.hitbox) and self.check_mouse(sprite):
-                    self.overlay.sprite_hovered = sprite
-
-                if self.overlay.sprite_hovered and\
-                   self.overlay.sprite_hovered.interaction_hitbox.colliderect(self.hitbox) and\
-                   self.check_mouse(self.overlay.sprite_hovered):
-                    self.overlay.drawing = True
-                else:
-                    self.overlay.drawing = False
-                    self.overlay.sprite_hovered = None
-
-            else:
-                if sprite.name == 'ladder' and self.hitbox.colliderect(sprite.hitbox):
-                    self.collide_ladders(sprite)
-
-        for sprite in self.collision_sprites.sprites():
-
-            if hasattr(sprite, 'hitbox') and sprite.hitbox and sprite.hitbox_status:
-                if isinstance(sprite, Border):
-                    print(sprite.hitbox_status)
-                self.collide(sprite, direction)
 
     def move(self, dt):
         # нормализация вектора
@@ -135,7 +150,6 @@ class Player(pygame.sprite.Sprite):
         self.line_of_sight.center = (round(self.hitbox.x), round(self.hitbox.y))
 
     def update(self, dt):
-        # print(self.timers['ladder'].active)
         self.input()
         self.update_timers()
         self.overlay.update()
