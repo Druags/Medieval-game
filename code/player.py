@@ -11,7 +11,7 @@ class Player(pygame.sprite.Sprite):
         self.pos = pygame.math.Vector2(pos)
         self.image = pygame.image.load('../data/objects/small_box.png')
         self.rect = self.image.get_rect(center=self.pos)
-        self.line_of_sight = self.rect.copy().inflate((SCREEN_WIDTH * 1.5, SCREEN_HEIGHT * 1.5))
+        self.line_of_sight = self.rect.copy().inflate((SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2))
 
         self.hitbox = self.rect.copy()
         self.hitbox_active = True
@@ -92,7 +92,8 @@ class Player(pygame.sprite.Sprite):
         if self.hitbox_active:
             for sprite in self.interactive_sprites.sprites():
                 if sprite.active:
-                    self.collide(sprite, direction)
+                    if sprite.hitbox_status:
+                        self.collide(sprite, direction)
                     if sprite.interaction_hitbox.colliderect(self.hitbox) and self.check_mouse(sprite):
                         self.overlay.sprite_hovered = sprite
 

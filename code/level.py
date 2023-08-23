@@ -45,11 +45,17 @@ class Level:
                  groups=[self.all_sprites, self.collision_sprites],
                  size_difference=size_difference,
                  wall_type='back')
+        for x, y, surf in tmx_data.get_layer_by_name('Walls_front_second_floor').tiles():
+            Wall(pos=(x, y),
+                 surf=surf,
+                 groups=[self.all_sprites, self.collision_sprites],
+                 size_difference=size_difference,
+                 wall_type='front_second_floor')
         for x, y, surf in tmx_data.get_layer_by_name('Roof_1').tiles():
             Roof(pos=(x, y),
                  surf=surf,
                  groups=self.all_sprites,
-                 z='Roof',
+                 z='Walls_back',
                  size_difference=size_difference)
         for x, y, surf in tmx_data.get_layer_by_name('Roof_2').tiles():
             Roof(pos=(x, y),

@@ -73,6 +73,9 @@ class Interactive(GenericObject):
             self.current_surf = 1
         else:
             self.current_surf = 0
+        if 'door' in self.name:
+            self.hitbox_status = not self.hitbox_status
+
         self.image = self.surfaces[self.current_surf]
 
 
@@ -96,6 +99,8 @@ class Wall(Generic):
             self.hitbox = None
         elif self.wall_type == 'front':
             self.z = LAYERS['Walls_front']
+        elif self.wall_type == 'front_second_floor':
+            self.z = LAYERS['Second_floor']
 
 
 class Roof(Generic):
