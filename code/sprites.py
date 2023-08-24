@@ -40,8 +40,8 @@ class Decoration(GenericObject):
 class Tree(GenericObject):
     def __init__(self, pos, surf, groups, z, size_difference):
         super().__init__(pos, surf, groups, z, size_difference)
-        self.hitbox = self.hitbox.inflate((-200, -200))
-        self.hitbox.top += 100
+        self.hitbox = self.hitbox.inflate((-200, -250))
+        self.hitbox.top += 125
 
 
 class Interactive(GenericObject):
