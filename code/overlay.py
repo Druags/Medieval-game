@@ -24,7 +24,7 @@ class HoverInteractive:
         text_x = self.text_rect.topleft[0] + (self.text_rect.width - size[0]) // 2
         text_y = self.text_rect.topleft[1] + (self.text_rect.height - size[1]) // 2
         self.display_surface.blit(self.shape_surf, self.text_rect)
-        pygame.draw.rect(self.display_surface, '#6f4641', self.text_rect.inflate(2,2), 3, 4)
+        pygame.draw.rect(self.display_surface, '#6f4641', self.text_rect.inflate(2,2), 2, 4)
 
         self.display_surface.blit(self.text, (text_x, text_y))
 

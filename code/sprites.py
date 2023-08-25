@@ -69,14 +69,15 @@ class Interactive(GenericObject):
         self.interaction_hitbox = self.hitbox.inflate((20*size_difference[0], 20*size_difference[1]))
 
     def change_surf(self):
-        if self.current_surf == 0:
-            self.current_surf = 1
-        else:
-            self.current_surf = 0
-        if 'door' in self.name:
-            self.hitbox_status = not self.hitbox_status
+        if hasattr(self, 'current_surf'):
+            if self.current_surf == 0:
+                self.current_surf = 1
+            else:
+                self.current_surf = 0
+            if 'door' in self.name:
+                self.hitbox_status = not self.hitbox_status
 
-        self.image = self.surfaces[self.current_surf]
+            self.image = self.surfaces[self.current_surf]
 
 
 class Building(GenericObject):

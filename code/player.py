@@ -105,7 +105,7 @@ class Player(pygame.sprite.Sprite):
 
                         if buttons[0] and not self.timers['input_timer'].active:
                             self.overlay.sprite_hovered.change_surf()
-                            print(self.overlay.sprite_hovered.current_surf)
+
                             self.timers['input_timer'].activate()
                     else:
                         self.overlay.drawing = False
