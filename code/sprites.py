@@ -65,6 +65,12 @@ class Interactive(GenericObject):
             self.surfaces = [closed_door, opened_door]
             self.current_surf = 0
             self.image = self.surfaces[self.current_surf]
+        elif 'chest' in self.name:
+            opened_chest = self.resize_surf(surf)
+            closed_chest = self.resize_surf(pygame.image.load('../data/objects/open_chest.png'))
+            self.surfaces = [opened_chest, closed_chest]
+            self.current_surf = 0
+            self.image = self.surfaces[self.current_surf]
 
         self.interaction_hitbox = self.hitbox.inflate((20*size_difference[0], 20*size_difference[1]))
 
