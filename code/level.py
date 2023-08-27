@@ -16,7 +16,8 @@ class Level:
         self.interactive_sprites = pygame.sprite.Group()
         self.borders = pygame.sprite.Group()
 
-        self.player = Player((700, 1600), self.all_sprites, self.collision_sprites, self.interactive_sprites, self.borders)
+        self.player = Player((700, 1600), self.all_sprites, self.collision_sprites, self.interactive_sprites,
+                             self.borders)
         self.setup()
 
     def setup(self):
@@ -141,7 +142,6 @@ class CameraGroup(pygame.sprite.Group):
         else:
             self.offset.y = player.pos.y - SCREEN_HEIGHT // 2
 
-
     def custom_draw(self, player):
         self.border_camera(player)
         for layer in LAYERS.values():
@@ -149,20 +149,25 @@ class CameraGroup(pygame.sprite.Group):
                 if sprite.rect.colliderect(player.line_of_sight) and sprite.z == layer:
                     offset_rect = sprite.rect.copy()
                     offset_rect.center -= self.offset
+                    if isinstance(sprite, Player):
+                        offset_rect.top -= 10
                     copy_sight = player.line_of_sight.copy()
                     copy_sight.center -= self.offset
-                    m_pos = pygame.mouse.get_pos()
                     self.display_surface.blit(sprite.image, offset_rect)
 
                     if DEBUG:
                         if hasattr(sprite, 'hitbox') and sprite.hitbox:
-                            offset_rect = sprite.hitbox.copy()
-                            offset_rect.center -= self.offset
+                            hitbox_copy = sprite.hitbox.copy()
+                            hitbox_copy.center -= self.offset
 
                             if isinstance(sprite, Player):
-                                sprite.offset = offset_rect
+                                rect_offset = sprite.rect.copy()
+                                rect_offset.center -= self.offset
+
                                 text = self.font.render(f'{player.rect.center}', True, 'green')
+                                offset_rect.centery -= text.get_size()[1]+10
+                                offset_rect.centerx -= text.get_size()[0]//2 - offset_rect.width//2
                                 self.display_surface.blit(text, offset_rect)
-                                pygame.draw.rect(self.display_surface, 'green', offset_rect, 4)
-                            pygame.draw.rect(self.display_surface, 'red', offset_rect, 2)
+
+                            pygame.draw.rect(self.display_surface, 'red', hitbox_copy, 2)
                         # pygame.draw.rect(self.display_surface, 'red', offset_rect, 2)

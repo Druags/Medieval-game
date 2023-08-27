@@ -11,10 +11,10 @@ class Player(pygame.sprite.Sprite):
         self.pos = pygame.math.Vector2(pos)
         self.image = pygame.image.load('../data/objects/small_box.png')
         self.rect = self.image.get_rect(center=self.pos)
-        self.line_of_sight = self.rect.copy().inflate((SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2))
 
-        self.hitbox = self.rect.copy()
+        self.hitbox = self.rect.copy().inflate(0, -20)
         self.hitbox_active = True
+
         self.collision_sprites = collision_sprites
         self.interactive_sprites = interactive_sprites
         self.borders = borders
@@ -25,6 +25,7 @@ class Player(pygame.sprite.Sprite):
         self.speed = 200
 
         self.offset = None
+        self.line_of_sight = self.rect.copy().inflate((SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2))
 
         self.overlay = HoverInteractive()
 
@@ -81,10 +82,10 @@ class Player(pygame.sprite.Sprite):
                 self.pos.y = self.hitbox.centery
 
     def collide_ladders(self, sprite):
-        if self.direction.y == -1:
+        if self.direction.y == -1 and sprite.rect.collidepoint(self.rect.midbottom):
             self.z = LAYERS['Second_floor']
             self.current_floor = 1
-        elif self.direction.y == 1:
+        elif self.direction.y == 1 and sprite.rect.collidepoint(self.rect.midtop):
             self.z = LAYERS['Main']
             self.current_floor = 0
 
@@ -112,7 +113,7 @@ class Player(pygame.sprite.Sprite):
                         self.overlay.sprite_hovered = None
 
                 else:
-                    if sprite.name == 'ladder' and self.hitbox.colliderect(sprite.hitbox):
+                    if sprite.name == 'ladder' and self.rect.colliderect(sprite.hitbox):
                         self.collide_ladders(sprite)
 
             for sprite in self.collision_sprites.sprites():
@@ -155,3 +156,4 @@ class Player(pygame.sprite.Sprite):
         self.update_timers()
         self.overlay.update()
         self.move(dt)
+
