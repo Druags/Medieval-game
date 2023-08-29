@@ -14,11 +14,24 @@ class Item:
         self.y = SCREEN_HEIGHT - self.height * 1.25
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
 
+        self.exit_button = pygame.Rect(self.x + self.width+15, self.y, 30, 30)
+
     def draw(self):
         pygame.draw.rect(self.display_surf, 'white', self.rect)
+        pygame.draw.rect(self.display_surf, 'white', self.exit_button)
+
+    def change_status(self):
+        self.active = not self.active
+        self.player.active_item = None if self.player.active_item else self
 
     def input(self):
-        pass
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_ESCAPE]:
+            self.change_status()
+
+        buttons = pygame.mouse.get_pressed()
+        if buttons[0] and self.exit_button.collidepoint(pygame.mouse.get_pos()):
+            self.change_status()
 
     def update(self):
         if self.active:

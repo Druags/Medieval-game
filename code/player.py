@@ -31,6 +31,8 @@ class Player(pygame.sprite.Sprite):
 
         self.current_floor = 0
 
+        self.active_item = None
+
         self.timers = {
             'ladder_timer': Timer(1000),
             'input_timer': Timer(200)
@@ -105,7 +107,7 @@ class Player(pygame.sprite.Sprite):
                         buttons = pygame.mouse.get_pressed()
 
                         if buttons[0] and not self.timers['input_timer'].active:
-                            self.overlay.sprite_hovered.change_surf()
+                            self.overlay.sprite_hovered.click()
 
                             self.timers['input_timer'].activate()
                     else:
@@ -155,5 +157,10 @@ class Player(pygame.sprite.Sprite):
         self.input()
         self.update_timers()
         self.overlay.update()
-        self.move(dt)
+
+        if self.active_item:
+            self.overlay.drawing=False
+            self.active_item.update()
+        else:
+            self.move(dt)
 

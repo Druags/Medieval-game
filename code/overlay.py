@@ -17,6 +17,9 @@ class HoverInteractive:
         self.drawing = False
         self.sprite_hovered = None
 
+    def change_status(self):
+        self.drawing = not self.drawing
+
     def draw(self):
         mouse_pos = pygame.mouse.get_pos()
         size = self.text.get_size()

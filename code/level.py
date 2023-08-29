@@ -3,7 +3,8 @@ from pytmx.util_pygame import load_pygame
 
 from settings import *
 from player import Player
-from sprites import Generic, Tree, Wall, Interactive, Building, Roof, Decoration
+from sprites import Generic, Tree, Wall, Building, Roof, Decoration
+from interactives import Interactive
 from borders import Border
 from items import Item
 
@@ -19,7 +20,6 @@ class Level:
 
         self.player = Player((700, 1600), self.all_sprites, self.collision_sprites, self.interactive_sprites,
                              self.borders)
-        self.item = Item(self.player)
         self.setup()
 
     def setup(self):
@@ -79,14 +79,16 @@ class Level:
                         groups=[self.all_sprites, self.interactive_sprites],
                         z='Main',
                         size_difference=size_difference,
-                        name=obj.name)
+                        name=obj.name,
+                        player=self.player)
         for obj in tmx_data.get_layer_by_name('Interactive_objects_second_floor'):
             Interactive(pos=(obj.x, obj.y),
                         surf=obj.image,
                         groups=[self.all_sprites, self.interactive_sprites],
                         z='Second_floor_buildings',
                         size_difference=size_difference,
-                        name=obj.name)
+                        name=obj.name,
+                        player=self.player)
         for obj in tmx_data.get_layer_by_name('Buildings'):
             Building(pos=(obj.x, obj.y),
                      surf=obj.image,
@@ -119,7 +121,6 @@ class Level:
         self.display_surface.fill('black')
         self.all_sprites.custom_draw(self.player)
         self.player.update(dt)
-        self.item.update()
 
 
 class CameraGroup(pygame.sprite.Group):
