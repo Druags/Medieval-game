@@ -1,6 +1,6 @@
 import pygame
 from settings import *
-from overlay import HoverInteractive
+from interface import HoverInteractive
 from timer import Timer
 from borders import Border
 
