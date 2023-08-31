@@ -13,32 +13,67 @@ class Interactive(pygame.sprite.Sprite):
                                 random.randint(100, SCREEN_HEIGHT - 100),
                                 100,
                                 100)
+        self.interactive_rect = self.rect.copy().inflate(60, 60)
+
         self.color_active = cycle(['red', 'gray'])
-        self.color_passive = 'gray'
-        self.color_clicked = 'red'
-        self.current_color = self.color_passive
+        self.color_hover = cycle(['blue', 'gray'])
+        self.current_color = 'gray'
+        self.is_hovered = False
 
     def change_color(self, type):
         if type == 'click':
-            print(self.current_color)
             self.current_color = next(self.color_active)
+        elif type == 'hover':
+            self.current_color = next(self.color_hover)
 
-    def get_clicked(self):
-
+    def clicked(self):
         self.change_color('click')
+
+    def hovered(self, ):
+        self.change_color('hover')
 
 
 class UserInterface:
-    def __init__(self, interactives):
-        self.interactives = interactives
+    def __init__(self, interactive):
+        self.interactive = interactive
+        self.hovered_sprite = None
+        self.mouse = pygame.mouse.get_pos()
 
-    def click(self, mouse):
-        for interactive in self.interactives:
-            if interactive.rect.collidepoint(mouse):
-                interactive.get_clicked()
+        self.timers = {'click': Timer(200)}
 
-    def hover(self, mouse):
-        pass
+    def click(self):
+        for interactive in self.interactive:
+            if interactive.rect.collidepoint(self.mouse):
+                interactive.clicked()
+
+    def hover(self):
+        if self.hovered_sprite is None:
+            for interactive in self.interactive:
+                if interactive.interactive_rect.collidepoint(self.mouse):
+                    self.hovered_sprite = interactive
+                    self.hovered_sprite.hovered()
+                    break
+        elif not self.hovered_sprite.interactive_rect.collidepoint(self.mouse):
+            self.hovered_sprite.hovered()
+            self.hovered_sprite = None
+
+    def input(self):
+        self.mouse = pygame.mouse.get_pos()
+        buttons = pygame.mouse.get_pressed()
+        # click
+        if buttons[0] and not self.timers['click'].active:
+            self.click()
+            self.timers['click'].activate()
+        # hover
+        self.hover()
+
+    def update_timers(self):
+        for timer in self.timers:
+            self.timers[timer].update()
+
+    def update(self):
+        self.update_timers()
+        self.input()
 
 
 class Level:
@@ -47,28 +82,15 @@ class Level:
 
         self.group = CustomGroup()
         self.setup()
-        self.timers = {'click': Timer(200)}
 
     def setup(self):
         self.objects = [Interactive(self.group) for _ in range(5)]
         self.interface = UserInterface(self.objects)
 
-    def input(self):
-        mouse = pygame.mouse.get_pos()
-        buttons = pygame.mouse.get_pressed()
-        if buttons[0] and not self.timers['click'].active:
-            self.interface.click(mouse)
-            self.timers['click'].activate()
-
-    def update_timers(self):
-        for timer in self.timers:
-            self.timers[timer].update()
-
     def run(self, dt):
-        print(self.timers['click'].active)
-        self.update_timers()
-        self.input()
+        self.interface.update()
         self.group.custom_draw()
+        self.group.update()
 
 
 class CustomGroup(pygame.sprite.Group):
@@ -78,4 +100,5 @@ class CustomGroup(pygame.sprite.Group):
 
     def custom_draw(self):
         for item in self.sprites():
+            pygame.draw.rect(self.display_surface, 'white', item.interactive_rect)
             pygame.draw.rect(self.display_surface, item.current_color, item.rect)
