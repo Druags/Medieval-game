@@ -16,7 +16,7 @@ class Interactive(GenericObject):
             self.hitbox.bottom = self.rect.bottom
             self.item = Item(self.player)
         elif 'portal' in self.name:
-            self.hitbox = self.hitbox.inflate((-60*size_difference[0], -50*size_difference[1]))
+            self.hitbox = self.hitbox.inflate((-60 * size_difference[0], -50 * size_difference[1]))
             self.z = LAYERS['Ground']
         elif 'ladder' in self.name:
             self.z = LAYERS['Interactive']
@@ -34,7 +34,25 @@ class Interactive(GenericObject):
             self.current_surf = 0
             self.image = self.surfaces[self.current_surf]
 
-        self.interaction_hitbox = self.hitbox.inflate((20*size_difference[0], 20*size_difference[1]))
+        self.interaction_hitbox = self.hitbox.inflate((20 * size_difference[0], 20 * size_difference[1]))
+        # self.color_active = cycle(['red', 'gray'])
+        # self.color_hover = cycle(['blue', 'gray'])
+        # self.current_color = 'gray'
+        self.is_hovered = False
+
+    # def change_color(self, type):
+    #     if type == 'click':
+    #         self.current_color = next(self.color_active)
+    #     elif type == 'hover':
+    #         self.current_color = next(self.color_hover)
+
+    def clicked(self):
+        # self.change_color('click')
+        pass
+
+    def hovered(self, ):
+        # self.change_color('hover')
+        pass
 
     def change_surf(self):
 

@@ -7,6 +7,7 @@ from sprites import Generic, Tree, Wall, Building, Roof, Decoration
 from interactives import Interactive
 from borders import Border
 from items import Item
+from interface import UserInterface
 
 
 class Level:
@@ -20,6 +21,8 @@ class Level:
 
         self.player = Player((700, 1600), self.all_sprites, self.collision_sprites, self.interactive_sprites,
                              self.borders)
+
+        self.interface = UserInterface(self.interactive_sprites, self.all_sprites.offset, self.player)
         self.setup()
 
     def setup(self):
@@ -118,9 +121,9 @@ class Level:
                    )
 
     def run(self, dt):
-        self.display_surface.fill('black')
         self.all_sprites.custom_draw(self.player)
         self.player.update(dt)
+        self.interface.update()
 
 
 class CameraGroup(pygame.sprite.Group):
