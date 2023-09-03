@@ -34,7 +34,9 @@ class UserInterface:
                 interactive.clicked()
 
     def check_hover(self, sprite):
-        return sprite.interaction_hitbox.collidepoint(self.offset_mouse) and sprite.interaction_hitbox.colliderect(self.player)
+        return sprite.interaction_hitbox.collidepoint(self.offset_mouse) and \
+               sprite.interaction_hitbox.colliderect(self.player) and \
+               sprite.mouse_interaction
 
     def hover(self):
         if self.hovered_sprite is None:
@@ -53,7 +55,7 @@ class UserInterface:
         self.visible = pygame.mouse.get_visible()
         pygame.mouse.set_visible(not self.visible)
 
-    def draw(self):
+    def hover_cursor(self):
 
         size = self.text.get_size()
         self.text_rect.center = self.mouse
@@ -82,5 +84,5 @@ class UserInterface:
         self.update_timers()
         self.input()
         if self.visible:
-            self.draw()
+            self.hover_cursor()
 
