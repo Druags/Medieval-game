@@ -2,6 +2,7 @@ import pygame
 
 from settings import *
 from sprites import GenericObject
+from interface import Window
 from items import Item
 
 
@@ -45,9 +46,9 @@ class Runestone(Interactive):
         self.hitbox.bottom = self.rect.bottom
         self.item = Item(self.player)
 
+
     def clicked(self):
-        self.player.overlay.change_status()
-        self.item.change_status()
+        print(1)
 
 
 class Portal(Interactive):

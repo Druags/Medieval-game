@@ -24,16 +24,4 @@ class Item:
         self.active = not self.active
         self.player.active_item = None if self.player.active_item else self
 
-    def input(self):
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_ESCAPE]:
-            self.change_status()
 
-        buttons = pygame.mouse.get_pressed()
-        if buttons[0] and self.exit_button.collidepoint(pygame.mouse.get_pos()):
-            self.change_status()
-
-    def update(self):
-        if self.active:
-            self.draw()
-            self.input()
