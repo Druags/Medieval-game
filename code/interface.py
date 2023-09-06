@@ -5,6 +5,11 @@ from timer import Timer
 from settings import *
 
 
+class Button:
+    def __init__(self, x, y, width, height):
+        self.interaction_hitbox = pygame.Rect(x, y, width, height)
+
+
 class Window:
     def __init__(self):
         self.active = False
@@ -14,7 +19,7 @@ class Window:
         self.x = SCREEN_WIDTH - WINDOW_WIDTH * 1.5
         self.y = SCREEN_HEIGHT - WINDOW_HEIGHT * 1.25
         self.window = pygame.Rect(self.x, self.y, WINDOW_WIDTH, WINDOW_HEIGHT)
-        self.exit_button = pygame.Rect(self.x + WINDOW_WIDTH + 15, self.y, 30, 30)
+        self.exit_button = Button(self.x + WINDOW_WIDTH + 15, self.y, 30, 30)
         self.interactive = [self.exit_button]
 
     def change_status(self):
@@ -25,7 +30,7 @@ class Window:
 
     def display_content(self):
         pygame.draw.rect(self.display_surf, 'white', self.window)
-        pygame.draw.rect(self.display_surf, 'white', self.exit_button)
+        pygame.draw.rect(self.display_surf, 'white', self.exit_button.interaction_hitbox)
 
     def input(self):
         keys = pygame.key.get_pressed()
@@ -33,7 +38,7 @@ class Window:
             self.change_status()
 
         buttons = pygame.mouse.get_pressed()
-        if buttons[0] and self.exit_button.collidepoint(pygame.mouse.get_pos()):
+        if buttons[0] and self.exit_button.interaction_hitbox.collidepoint(pygame.mouse.get_pos()):
             self.change_status()
 
     def update(self):
@@ -46,7 +51,7 @@ class Window:
 class UserInterface:
     def __init__(self, interactive, offset, player):
         self.window = Window()
-        self.interactives = cycle([self.window.interactive, interactive])
+
         self.interactive = interactive
         self.player = player
         self.hovered_sprite = None
@@ -69,21 +74,20 @@ class UserInterface:
         self.shape_surf.set_alpha(128)
         self.shape_surf.fill('#292f3d')
 
-    def click(self):
-        for inter_item in self.interactive:
-            if inter_item.rect.collidepoint(self.offset_mouse):
-                if not self.window.active:
-                    self.window.get_content(inter_item.item)
-                    self.window.change_status()
+    def click(self, item):
+        # for inter_item in self.interactive:
+        #     if inter_item.rect.collidepoint(self.offset_mouse):
+        if not self.window.active:
+            self.window.get_content(item.item)
 
     def check_hover(self, item):
+        print(self.offset_mouse, item.interaction_hitbox)
         return item.interaction_hitbox.collidepoint(self.offset_mouse) and \
                item.interaction_hitbox.colliderect(self.player) and \
                item.mouse_interaction
 
     def hover(self):
         if self.hovered_sprite is None:
-
             for inter_item in self.interactive:
                 if self.check_hover(inter_item):
                     self.hovered_sprite = inter_item
@@ -100,7 +104,6 @@ class UserInterface:
         pygame.mouse.set_visible(not self.visible)
 
     def hover_cursor(self):
-
         size = self.text.get_size()
         self.text_rect.center = self.mouse
         text_x = self.text_rect.topleft[0] + (self.text_rect.width - size[0]) // 2
@@ -109,16 +112,14 @@ class UserInterface:
         pygame.draw.rect(self.display_surface, '#6f4641', self.text_rect.inflate(2, 2), 2, 4)
         self.display_surface.blit(self.text, (text_x, text_y))
 
-    def change_interactive_group(self):
-        self.interactive = next(self.interactives)
-
     def input(self):
         self.mouse = pygame.mouse.get_pos()
         self.offset_mouse = (self.mouse[0] + self.offset.x, self.mouse[1] + self.offset.y)
         buttons = pygame.mouse.get_pressed()
         # click
         if buttons[0] and not self.timers['click'].active:
-            self.click()
+            if self.hovered_sprite:
+                self.click(self.hovered_sprite)
             self.timers['click'].activate()
         # hover
         self.hover()
@@ -128,6 +129,7 @@ class UserInterface:
             self.timers[timer].update()
 
     def update(self):
+        print(self.interactive)
         self.update_timers()
 
         self.input()
@@ -135,4 +137,3 @@ class UserInterface:
         self.window.update()
         if self.visible:
             self.hover_cursor()
-
