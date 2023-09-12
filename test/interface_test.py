@@ -42,6 +42,7 @@ class Window:
 
     def update(self):
         self.input()
+        print(self.exit_button.rect)
         if self.active:
             self.display_content()
             self.input()
@@ -56,7 +57,7 @@ class UserInterface:
         self.player = player
         self.hovered_sprite = None
         self.mouse = pygame.mouse.get_pos()
-        self.visible = False
+        self.cursor_visible = False
         self.display_surface = pygame.display.get_surface()
 
         self.timers = {'click': Timer(400)}
@@ -101,8 +102,8 @@ class UserInterface:
             self.hovered_sprite = None
 
     def change_cursor(self):
-        self.visible = pygame.mouse.get_visible()
-        pygame.mouse.set_visible(not self.visible)
+        self.cursor_visible = pygame.mouse.get_visible()
+        pygame.mouse.set_visible(not self.cursor_visible)
 
     def draw(self):
         size = self.text.get_size()
@@ -132,6 +133,6 @@ class UserInterface:
         self.update_timers()
         self.window.update()
         print(self.cur_interactive)
-        if self.visible:
+        if self.cursor_visible:
             self.draw()
         self.input()

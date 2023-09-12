@@ -34,6 +34,8 @@ class Level:
             z='Ground'
         )
         self.all_sprites.world_size = self.all_sprites.sprites()[1].image.get_size()
+        self.all_sprites.world_size = (1920, 2560)
+
         world_width = self.all_sprites.world_size[0]
         world_height = self.all_sprites.world_size[1]
 

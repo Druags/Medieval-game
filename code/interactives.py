@@ -2,7 +2,7 @@ import pygame
 
 from settings import *
 from sprites import GenericObject
-from interface import Window
+
 from items import Item
 
 
