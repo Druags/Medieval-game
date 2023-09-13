@@ -1,45 +1,61 @@
 import pygame
 from itertools import cycle
 
-from interactives import Interactive
 from timer import Timer
 from settings import *
 
 
-class Button(pygame.sprite.Sprite):
-    def __init__(self, group, x, y, width, height):
-        super().__init__(group)
+class Button:
+    def __init__(self, window, x, y, width, height):
+        self.window = window
         self.rect = pygame.Rect(x, y, width, height)
         self.interaction_hitbox = self.rect.copy()
 
     def clicked(self):
-        pass
+        self.window.change_status()
+        self.window.interface.change_inter()
 
     def hovered(self, ):
         pass
 
 
 class Window:
-    def __init__(self):
+    def __init__(self, interface):
         self.active = False
+        self.interface = interface
+
+        self.font = pygame.font.Font('../font/LycheeSoda.ttf', 30)
 
         self.display_surf = pygame.display.get_surface()
         self.group = pygame.sprite.Group()
         self.x = SCREEN_WIDTH - WINDOW_WIDTH * 1.5
         self.y = SCREEN_HEIGHT - WINDOW_HEIGHT * 1.25
         self.window = pygame.Rect(self.x, self.y, WINDOW_WIDTH, WINDOW_HEIGHT)
-        self.exit_button = Button(self.group, self.window.topright[0] + 15, self.window.topright[1], 30, 30)
+        self.exit_button = Button(self, self.window.topright[0] + 15, self.window.topright[1], 30, 30)
         self.interactive = [self.exit_button]
 
     def change_status(self):
         self.active = not self.active
 
     def get_content(self, content):
-        self.content = content
+        content_len = len(content)
+        # (15, 30)
+        parts = (content_len * 15) // WINDOW_WIDTH
+        content_lst = []
+        for x in range(parts):
+            part = content[x * 40:x * 40 + 40]
+            last_space = part.rfind(' ')
+            part = part[0: last_space]
+            content_lst.append(part)
+        print(content_lst)
+
+        self.content = [self.font.render(part, False, 'black') for part in content_lst]
 
     def display_content(self):
         pygame.draw.rect(self.display_surf, 'white', self.window)
         pygame.draw.rect(self.display_surf, 'white', self.exit_button.interaction_hitbox)
+        for i, part in enumerate(self.content):
+            self.display_surf.blit(part, (self.window.x + 10, self.window.y + 10 + i * 30))
 
     def input(self):
         keys = pygame.key.get_pressed()
@@ -55,7 +71,7 @@ class Window:
 
 class UserInterface:
     def __init__(self, interactive, offset, player):
-        self.window = Window()
+        self.window = Window(self)
         self.cur_interactive = interactive
         self.interactives = cycle([self.window.interactive, interactive])
 
@@ -87,13 +103,13 @@ class UserInterface:
         self.hovered_sprite = None
 
     def click(self, item):
-        if not self.window.active:
-            self.window.get_content(item.item)
-        self.window.change_status()
-        self.change_inter()
+        content = item.clicked()
+        if content:
+            self.window.get_content(content)
+            self.window.change_status()
+            self.change_inter()
 
     def check_hover(self, item):
-
         return item.interaction_hitbox.collidepoint(self.mouse) and \
                item.interaction_hitbox.colliderect(self.player) and \
                item.mouse_interaction or self.window.active and item.interaction_hitbox.collidepoint(self.mouse)
@@ -101,7 +117,6 @@ class UserInterface:
     def hover(self):
         if self.hovered_sprite is None:
             for inter_item in self.cur_interactive:
-
                 if self.check_hover(inter_item):
                     self.hovered_sprite = inter_item
                     self.hovered_sprite.hovered()
@@ -134,7 +149,6 @@ class UserInterface:
             self.mouse = (self.mouse[0] + self.offset.x, self.mouse[1] + self.offset.y)
         else:
             self.mouse = pygame.mouse.get_pos()
-            print(self.mouse)
 
         buttons = pygame.mouse.get_pressed()
         # click

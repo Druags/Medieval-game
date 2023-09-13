@@ -124,7 +124,8 @@ class Level:
 
     def run(self, dt):
         self.all_sprites.custom_draw(self.player)
-        self.player.update(dt)
+        if not self.interface.window.active:
+            self.player.update(dt)
         self.interface.update()
 
 
