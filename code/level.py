@@ -79,20 +79,16 @@ class Level:
                  size_difference=size_difference)
 
         for obj in tmx_data.get_layer_by_name('Interactive_objects'):
-            create_interactive(pos=(obj.x, obj.y),
-                               surf=obj.image,
+            create_interactive(obj=obj,
                                groups=[self.all_sprites, self.interactive_sprites],
                                z='Main',
                                size_difference=size_difference,
-                               name=obj.name,
                                player=self.player)
         for obj in tmx_data.get_layer_by_name('Interactive_objects_second_floor'):
-            create_interactive(pos=(obj.x, obj.y),
-                               surf=obj.image,
+            create_interactive(obj=obj,
                                groups=[self.all_sprites, self.interactive_sprites],
                                z='Second_floor',
                                size_difference=size_difference,
-                               name=obj.name,
                                player=self.player)
         for obj in tmx_data.get_layer_by_name('Buildings'):
             Building(pos=(obj.x, obj.y),

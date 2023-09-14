@@ -24,8 +24,6 @@ class Window:
         self.active = False
         self.interface = interface
 
-        self.font = pygame.font.Font('../font/LycheeSoda.ttf', 30)
-
         self.display_surf = pygame.display.get_surface()
         self.group = pygame.sprite.Group()
         self.x = SCREEN_WIDTH - WINDOW_WIDTH * 1.5
@@ -34,21 +32,28 @@ class Window:
         self.exit_button = Button(self, self.window.topright[0] + 15, self.window.topright[1], 30, 30)
         self.interactive = [self.exit_button]
 
+        self.font = pygame.font.Font('../font/DiaryOfAn8BitMage-lYDD.ttf', 25)
+        self.one_letter_width = self.font.render('a', False, 'black').get_size()[0]
+        self.space_width = self.font.render(' ', False, 'black').get_size()[0]
+        self.text_size = self.window.width // self.one_letter_width
+
     def change_status(self):
         self.active = not self.active
 
     def get_content(self, content):
         content_len = len(content)
-        # (15, 30)
-        parts = (content_len * 15) // WINDOW_WIDTH
+        # (15, 30) (9, 30)
+        parts = (content_len * self.one_letter_width) // WINDOW_WIDTH
         content_lst = []
         for x in range(parts):
-            part = content[x * 40:x * 40 + 40]
+            part = content[0:self.text_size]
+
             last_space = part.rfind(' ')
             part = part[0: last_space]
-            content_lst.append(part)
-        print(content_lst)
-
+            content = content[last_space + 1:]
+            to_fill = (self.window.width - len(part)*self.one_letter_width) // self.space_width
+            print(to_fill)
+            content_lst.append(part.center(self.text_size+to_fill, ' '))
         self.content = [self.font.render(part, False, 'black') for part in content_lst]
 
     def display_content(self):

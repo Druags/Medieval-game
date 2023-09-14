@@ -6,19 +6,27 @@ from sprites import GenericObject
 from items import Item
 
 
-def create_interactive(pos, surf, groups, z, size_difference, name, player):
-    if 'runestone' in name:
-        Runestone(pos, surf, groups, z, size_difference, name, player)
-    elif 'portal' in name:
-        Portal(pos, surf, groups, z, size_difference, name, player)
-    elif 'ladder' in name:
-        Ladder(pos, surf, groups, z, size_difference, name, player)
-    elif 'door' in name:
-        Door(pos, surf, groups, z, size_difference, name, player)
-    elif 'chest' in name:
-        Chest(pos, surf, groups, z, size_difference, name, player)
-    elif 'arch' in name:
-        Arch(pos, surf, groups, z, size_difference, name, player)
+def create_interactive(obj, groups, z, size_difference, player):
+    if 'runestone' in obj.name:
+        Runestone(pos=(obj.x, obj.y), surf=obj.image, groups=groups, z=z, size_difference=size_difference,
+                  name=obj.name,
+                  player=player,
+                  content=obj.content)
+    elif 'portal' in obj.name:
+        Portal(pos=(obj.x, obj.y), surf=obj.image, groups=groups, z=z, size_difference=size_difference, name=obj.name,
+               player=player)
+    elif 'ladder' in obj.name:
+        Ladder(pos=(obj.x, obj.y), surf=obj.image, groups=groups, z=z, size_difference=size_difference, name=obj.name,
+               player=player)
+    elif 'door' in obj.name:
+        Door(pos=(obj.x, obj.y), surf=obj.image, groups=groups, z=z, size_difference=size_difference, name=obj.name,
+             player=player)
+    elif 'chest' in obj.name:
+        Chest(pos=(obj.x, obj.y), surf=obj.image, groups=groups, z=z, size_difference=size_difference, name=obj.name,
+              player=player)
+    elif 'arch' in obj.name:
+        Arch(pos=(obj.x, obj.y), surf=obj.image, groups=groups, z=z, size_difference=size_difference, name=obj.name,
+             player=player)
 
 
 class Interactive(GenericObject):
@@ -40,14 +48,15 @@ class Interactive(GenericObject):
 
 
 class Runestone(Interactive):
-    def __init__(self, pos, surf, groups, z, size_difference, name, player):
+    def __init__(self, pos, surf, groups, z, size_difference, name, player, content):
         super().__init__(pos, surf, groups, z, size_difference, name, player)
         self.hitbox = pygame.Rect(self.hitbox.x, self.hitbox.y, self.hitbox.width, 50)
         self.hitbox.bottom = self.rect.bottom
         self.item = Item(self.player)
+        self.content = content
 
     def clicked(self):
-        return 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
+        return self.content
 
 
 class Portal(Interactive):
