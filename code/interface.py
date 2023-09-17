@@ -6,10 +6,11 @@ from settings import *
 
 
 class Button:
-    def __init__(self, window, x, y, width, height):
+    def __init__(self, window, x, y, width, height, color):
         self.window = window
         self.rect = pygame.Rect(x, y, width, height)
         self.interaction_hitbox = self.rect.copy()
+        self.color = color
 
     def clicked(self):
         self.window.change_status()
@@ -25,17 +26,38 @@ class Window:
         self.interface = interface
 
         self.display_surf = pygame.display.get_surface()
-        self.group = pygame.sprite.Group()
-        self.x = SCREEN_WIDTH - WINDOW_WIDTH * 1.5
-        self.y = SCREEN_HEIGHT - WINDOW_HEIGHT * 1.25
-        self.window = pygame.Rect(self.x, self.y, WINDOW_WIDTH, WINDOW_HEIGHT)
-        self.exit_button = Button(self, self.window.topright[0] + 15, self.window.topright[1], 30, 30)
-        self.interactive = [self.exit_button]
 
-        self.font = pygame.font.Font('../font/DiaryOfAn8BitMage-lYDD.ttf', 25)
+        self.x = (SCREEN_WIDTH - WINDOW_WIDTH) // 2
+        self.y = (SCREEN_HEIGHT - WINDOW_HEIGHT) // 2
+        self.window = pygame.Rect(self.x, self.y, WINDOW_WIDTH, WINDOW_HEIGHT)
+        self.exit_button = Button(self,
+                                  self.window.right + 15,
+                                  self.window.top,
+                                  30,
+                                  30,
+                                  'black')
+        self.next_button = Button(self,
+                                  self.window.left + self.window.width * 0.25,
+                                  self.window.top + self.window.height * 0.80,
+                                  self.window.width * 0.10,
+                                  self.window.height * 0.05,
+                                  'green')
+        self.prev_button = Button(self,
+                                  self.window.left + self.window.width * 0.65,
+                                  self.window.top + self.window.height * 0.80,
+                                  self.window.width * 0.10,
+                                  self.window.height * 0.05,
+                                  'red')
+        self.interactive = [self.exit_button, self.prev_button, self.next_button]
+
+        self.font_height = 25
+        self.font = pygame.font.Font('../font/DiaryOfAn8BitMage-lYDD.ttf', self.font_height)
         self.one_letter_width = self.font.render('a', False, 'black').get_size()[0]
         self.space_width = self.font.render(' ', False, 'black').get_size()[0]
-        self.text_size = self.window.width // self.one_letter_width
+        self.text_width = self.window.width // self.one_letter_width
+        self.text_gap = 10
+
+        self.cur_page = 0
 
     def change_status(self):
         self.active = not self.active
@@ -44,23 +66,30 @@ class Window:
         content_len = len(content)
         # (15, 30) (9, 30)
         parts = (content_len * self.one_letter_width) // WINDOW_WIDTH
-        content_lst = []
-        for x in range(parts):
-            part = content[0:self.text_size]
 
-            last_space = part.rfind(' ')
-            part = part[0: last_space]
-            content = content[last_space + 1:]
-            to_fill = (self.window.width - len(part)*self.one_letter_width) // self.space_width
-            print(to_fill)
-            content_lst.append(part.center(self.text_size+to_fill, ' '))
-        self.content = [self.font.render(part, False, 'black') for part in content_lst]
+        pages = int((parts * self.font_height) // WINDOW_HEIGHT)
+        print(pages)
+        content_lst = []
+        for page in range(pages + 1):
+            page = []
+            print(int(WINDOW_HEIGHT // self.font_height))
+            for x in range((int(WINDOW_HEIGHT) - 10) // (self.font_height + self.text_gap)):
+                part = content[0:self.text_width]
+                last_space = part.rfind(' ')
+                part = part[0: last_space]
+                content = content[last_space + 1:]
+                to_fill = (self.window.width - len(part) * self.one_letter_width) // self.space_width
+                page.append(part.center(self.text_width + to_fill, ' '))
+            content_lst.append(page)
+        self.content = [self.font.render(part, False, 'black') for part in content_lst[self.cur_page]]
 
     def display_content(self):
         pygame.draw.rect(self.display_surf, 'white', self.window)
-        pygame.draw.rect(self.display_surf, 'white', self.exit_button.interaction_hitbox)
+        for inter_item in self.interactive:
+            pygame.draw.rect(self.display_surf, inter_item.color, inter_item.interaction_hitbox)
         for i, part in enumerate(self.content):
-            self.display_surf.blit(part, (self.window.x + 10, self.window.y + 10 + i * 30))
+            self.display_surf.blit(part,
+                                   (self.window.x + 10, self.window.y + 20 + i * (self.font_height + self.text_gap)))
 
     def input(self):
         keys = pygame.key.get_pressed()
