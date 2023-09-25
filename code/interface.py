@@ -28,7 +28,7 @@ class Button:
         self.window.interface.change_inter()
 
     def next_page(self):
-        self.window.cur_page += 1 if self.window.cur_page < self.window.pages else 0
+        self.window.cur_page += 1 if self.window.cur_page < self.window.pages-1 else 0
 
     def prev_page(self):
         self.window.cur_page -= 1 if self.window.cur_page > 0 else 0
@@ -103,10 +103,7 @@ class Window:
                 page.append(part.center(self.text_width + to_fill, ' '))
 
             content_lst.append(page)
-        print(content)
         self.content = [[self.font.render(row, False, 'black') for row in part] for part in content_lst]
-
-
 
     def display_content(self):
 
@@ -115,6 +112,7 @@ class Window:
         for inter_item in self.interactive:
             pygame.draw.rect(self.display_surf, inter_item.color, inter_item.interaction_hitbox)
             pygame.draw.rect(self.display_surf, 'black', inter_item.border, 3, 2)
+        print(self.cur_page)
         for i, row in enumerate(self.content[self.cur_page]):
             self.display_surf.blit(row,
                                    (self.window.x + 10, self.window.y + 20 + i * (self.font_height + self.text_gap)))
@@ -147,7 +145,7 @@ class UserInterface:
 
         self.display_surface = pygame.display.get_surface()
 
-        self.timers = {'click': Timer(400)}
+        self.timers = {'click': Timer(600)}
 
         self.setup()
 
