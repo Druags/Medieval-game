@@ -7,8 +7,9 @@ from timer import Timer
 from settings import *
 
 
-class Button:
-    def __init__(self, window, x, y, width, height, click_action, color='white'):
+class Button(pygame.sprite.Sprite):
+    def __init__(self, window, x, y, width, height, click_action, group, color='white'):
+        super().__init__(group)
         self.window = window
         self.rect = pygame.Rect((x, y), (width, height))
         self.interaction_hitbox = self.rect.copy()
@@ -28,7 +29,7 @@ class Button:
         self.window.interface.change_inter()
 
     def next_page(self):
-        self.window.cur_page += 1 if self.window.cur_page < self.window.pages-1 else 0
+        self.window.cur_page += 1 if self.window.cur_page < self.window.num_of_pages - 1 else 0
 
     def prev_page(self):
         self.window.cur_page -= 1 if self.window.cur_page > 0 else 0
@@ -54,52 +55,57 @@ class Window:
         self.one_letter_width = self.font.render('a', False, 'black').get_size()[0]
         self.space_width = self.font.render(' ', False, 'black').get_size()[0]
         self.text_width = self.window.width // self.one_letter_width
-        self.text_gap = 10
-        self.text_gap_top = 10
+        self.line_spacing = 10
+        self.margin_top = 10
+        self.margin_left = 10
 
         self.cur_page = 0
 
-        self.exit_button = Button(self,
-                                  self.window.right + 15,
-                                  self.window.top,
-                                  30,
-                                  30,
-                                  'close')
-        self.prev_button = Button(self,
-                                  self.window.left + self.window.width * 0.25,
-                                  self.window.top + self.window.height * 0.90,
-                                  self.window.width * 0.10,
-                                  self.window.height * 0.05,
-                                  'prev')
-        self.next_button = Button(self,
-                                  self.window.left + self.window.width * 0.65,
-                                  self.window.top + self.window.height * 0.90,
-                                  self.window.width * 0.10,
-                                  self.window.height * 0.05,
-                                  'next')
-        self.interactive = [self.exit_button,
-                            self.prev_button,
-                            self.next_button
-                            ]
+        self.interactive_group = WindowGroup()
+        self.setup()
+
+        self.text_rows_page = (int(WINDOW_HEIGHT) - self.margin_top) // (self.font_height + self.line_spacing) - 2
+
+    def setup(self):
+        Button(window=self,
+               x=self.window.right + 15,
+               y=self.window.top,
+               width=30,
+               height=30,
+               click_action='close',
+               group=self.interactive_group)
+        Button(window=self,
+               x=self.window.left + self.window.width * 0.25,
+               y=self.window.top + self.window.height * 0.90,
+               width=self.window.width * 0.10,
+               height=self.window.height * 0.05,
+               click_action='prev',
+               group=self.interactive_group)
+        Button(window=self,
+               x=self.window.left + self.window.width * 0.65,
+               y=self.window.top + self.window.height * 0.90,
+               width=self.window.width * 0.10,
+               height=self.window.height * 0.05,
+               click_action='next',
+               group=self.interactive_group)
 
     def change_status(self):
         self.active = not self.active
 
     def get_content(self, content):
-        content_len = len(content)
-        parts = (content_len * self.one_letter_width) // WINDOW_WIDTH
-        self.pages = math.ceil(parts * self.font_height / WINDOW_HEIGHT)
-
-        page_size = (int(WINDOW_HEIGHT) - self.text_gap_top) // (self.font_height + self.text_gap) - 2
+        content_len = len(content) * self.one_letter_width
+        text_rows_content = math.ceil(content_len / WINDOW_WIDTH)
+        self.num_of_pages = math.ceil(text_rows_content / self.text_rows_page)
         content_lst = []
-        for page in range(self.pages):
+        for page in range(self.num_of_pages):
             page = []
-            for x in range(page_size):
+            for x in range(self.text_rows_page):
                 part = content[0:self.text_width]
                 last_space = part.rfind(' ')
                 part = part[0: last_space]
                 content = content[last_space + 1:]
                 to_fill = (self.window.width - len(part) * self.one_letter_width) // self.space_width
+
                 page.append(part.center(self.text_width + to_fill, ' '))
 
             content_lst.append(page)
@@ -109,13 +115,11 @@ class Window:
 
         pygame.draw.rect(self.display_surf, 'white', self.window)
         pygame.draw.rect(self.display_surf, 'black', self.border, 2, 2)
-        for inter_item in self.interactive:
-            pygame.draw.rect(self.display_surf, inter_item.color, inter_item.interaction_hitbox)
-            pygame.draw.rect(self.display_surf, 'black', inter_item.border, 3, 2)
-        print(self.cur_page)
+        self.interactive_group.custom_draw()
         for i, row in enumerate(self.content[self.cur_page]):
             self.display_surf.blit(row,
-                                   (self.window.x + 10, self.window.y + 20 + i * (self.font_height + self.text_gap)))
+                                   (self.window.x + self.margin_left,
+                                    self.window.y + self.margin_top + i * (self.font_height + self.line_spacing)))
 
     def input(self):
         keys = pygame.key.get_pressed()
@@ -130,11 +134,22 @@ class Window:
             self.input()
 
 
+class WindowGroup(pygame.sprite.Group):
+    def __init__(self):
+        super().__init__()
+        self.display_surface = pygame.display.get_surface()
+
+    def custom_draw(self):
+        for item in self.sprites():
+            pygame.draw.rect(self.display_surface, item.color, item.interaction_hitbox)
+            pygame.draw.rect(self.display_surface, 'black', item.border, 3, 2)
+
+
 class UserInterface:
     def __init__(self, interactive, offset, player):
         self.window = Window(self)
         self.cur_interactive = interactive
-        self.interactives = cycle([self.window.interactive, interactive])
+        self.interactives = cycle([self.window.interactive_group, interactive])
 
         self.player = player
         self.hovered_sprite = None
