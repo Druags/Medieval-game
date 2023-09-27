@@ -44,9 +44,6 @@ class Tree(GenericObject):
         self.hitbox.top += 125
 
 
-
-
-
 class Building(GenericObject):
     def __init__(self, pos, surf, groups, z, size_difference):
         super().__init__(pos, surf, groups, z, size_difference)

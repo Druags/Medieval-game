@@ -4,9 +4,10 @@ from pytmx.util_pygame import load_pygame
 from settings import *
 from player import Player
 from sprites import Generic, Tree, Wall, Building, Roof, Decoration
-from interactives import Interactive
+from interactives import create_interactive
 from borders import Border
 from items import Item
+from interface import UserInterface
 
 
 class Level:
@@ -20,6 +21,8 @@ class Level:
 
         self.player = Player((700, 1600), self.all_sprites, self.collision_sprites, self.interactive_sprites,
                              self.borders)
+
+        self.interface = UserInterface(self.interactive_sprites, self.all_sprites.offset, self.player)
         self.setup()
 
     def setup(self):
@@ -31,6 +34,8 @@ class Level:
             z='Ground'
         )
         self.all_sprites.world_size = self.all_sprites.sprites()[1].image.get_size()
+        self.all_sprites.world_size = (1920, 2560)
+
         world_width = self.all_sprites.world_size[0]
         world_height = self.all_sprites.world_size[1]
 
@@ -74,21 +79,17 @@ class Level:
                  size_difference=size_difference)
 
         for obj in tmx_data.get_layer_by_name('Interactive_objects'):
-            Interactive(pos=(obj.x, obj.y),
-                        surf=obj.image,
-                        groups=[self.all_sprites, self.interactive_sprites],
-                        z='Main',
-                        size_difference=size_difference,
-                        name=obj.name,
-                        player=self.player)
+            create_interactive(obj=obj,
+                               groups=[self.all_sprites, self.interactive_sprites],
+                               z='Main',
+                               size_difference=size_difference,
+                               player=self.player)
         for obj in tmx_data.get_layer_by_name('Interactive_objects_second_floor'):
-            Interactive(pos=(obj.x, obj.y),
-                        surf=obj.image,
-                        groups=[self.all_sprites, self.interactive_sprites],
-                        z='Second_floor_buildings',
-                        size_difference=size_difference,
-                        name=obj.name,
-                        player=self.player)
+            create_interactive(obj=obj,
+                               groups=[self.all_sprites, self.interactive_sprites],
+                               z='Second_floor',
+                               size_difference=size_difference,
+                               player=self.player)
         for obj in tmx_data.get_layer_by_name('Buildings'):
             Building(pos=(obj.x, obj.y),
                      surf=obj.image,
@@ -118,9 +119,10 @@ class Level:
                    )
 
     def run(self, dt):
-        self.display_surface.fill('black')
         self.all_sprites.custom_draw(self.player)
-        self.player.update(dt)
+        if not self.interface.window.active:
+            self.player.update(dt)
+        self.interface.update()
 
 
 class CameraGroup(pygame.sprite.Group):
@@ -169,8 +171,8 @@ class CameraGroup(pygame.sprite.Group):
                                 rect_offset.center -= self.offset
 
                                 text = self.font.render(f'{player.rect.center}', True, 'green')
-                                offset_rect.centery -= text.get_size()[1]+10
-                                offset_rect.centerx -= text.get_size()[0]//2 - offset_rect.width//2
+                                offset_rect.centery -= text.get_size()[1] + 10
+                                offset_rect.centerx -= text.get_size()[0] // 2 - offset_rect.width // 2
                                 self.display_surface.blit(text, offset_rect)
 
                             pygame.draw.rect(self.display_surface, 'red', hitbox_copy, 2)

@@ -1,6 +1,6 @@
 import pygame
 from settings import *
-from overlay import HoverInteractive
+
 from timer import Timer
 from borders import Border
 
@@ -26,8 +26,6 @@ class Player(pygame.sprite.Sprite):
 
         self.offset = None
         self.line_of_sight = self.rect.copy().inflate((SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2))
-
-        self.overlay = HoverInteractive()
 
         self.current_floor = 0
 
@@ -94,30 +92,10 @@ class Player(pygame.sprite.Sprite):
     def collision_check(self, direction):
         if self.hitbox_active:
             for sprite in self.interactive_sprites.sprites():
-                if sprite.active:
-                    if sprite.hitbox_status:
-                        self.collide(sprite, direction)
-                    if sprite.interaction_hitbox.colliderect(self.hitbox) and self.check_mouse(sprite):
-                        self.overlay.sprite_hovered = sprite
-
-                    if self.overlay.sprite_hovered and \
-                            self.overlay.sprite_hovered.interaction_hitbox.colliderect(self.hitbox) and \
-                            self.check_mouse(self.overlay.sprite_hovered):
-                        self.overlay.drawing = True
-                        buttons = pygame.mouse.get_pressed()
-
-                        if buttons[0] and not self.timers['input_timer'].active:
-                            self.overlay.sprite_hovered.click()
-
-                            self.timers['input_timer'].activate()
-                    else:
-                        self.overlay.drawing = False
-                        self.overlay.sprite_hovered = None
-
-                else:
-                    if sprite.name == 'ladder' and self.rect.colliderect(sprite.hitbox):
-                        self.collide_ladders(sprite)
-
+                if sprite.name == 'ladder' and self.rect.colliderect(sprite.hitbox):
+                    self.collide_ladders(sprite)
+                elif self.rect.colliderect(sprite.hitbox) and sprite.active:
+                    self.collide(sprite, direction)
             for sprite in self.collision_sprites.sprites():
                 if hasattr(sprite, 'hitbox') and sprite.hitbox and sprite.hitbox_status:
                     self.collide(sprite, direction)
@@ -156,11 +134,4 @@ class Player(pygame.sprite.Sprite):
     def update(self, dt):
         self.input()
         self.update_timers()
-        self.overlay.update()
-
-        if self.active_item:
-            self.overlay.drawing=False
-            self.active_item.update()
-        else:
-            self.move(dt)
-
+        self.move(dt)
