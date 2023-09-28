@@ -22,8 +22,9 @@ class Level:
         self.player = Player((700, 1600), self.all_sprites, self.collision_sprites, self.interactive_sprites,
                              self.borders)
 
-        self.interface = UserInterface(self.interactive_sprites, self.all_sprites.offset, self.player)
+
         self.setup()
+        self.interface = UserInterface(self.interactive_sprites, self.all_sprites.offset, self.player)
 
     def setup(self):
         tmx_data = load_pygame('../data/game_map.tmx')

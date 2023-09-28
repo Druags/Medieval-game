@@ -1,3 +1,5 @@
+import math
+
 import pygame
 
 from settings import *
@@ -53,7 +55,27 @@ class Runestone(Interactive):
         self.hitbox = pygame.Rect(self.hitbox.x, self.hitbox.y, self.hitbox.width, 50)
         self.hitbox.bottom = self.rect.bottom
         self.item = Item(self.player)
-        self.content = content
+        self.text = content
+        self.content = None
+
+    def set_content(self, one_letter_width, space_width, text_rows_page, text_width, font):
+        content_len = len(self.text) * one_letter_width
+        text_rows_content = math.ceil(content_len / WINDOW_WIDTH)
+        num_of_pages = math.ceil(text_rows_content / text_rows_page)
+        content_lst = []
+        for page in range(num_of_pages):
+            page = []
+            for x in range(text_rows_page):
+                part = self.text[0:text_width]
+                last_space = part.rfind(' ')
+                part = part[0: last_space]
+                self.text = self.text[last_space + 1:]
+                to_fill = (WINDOW_WIDTH - len(part) * one_letter_width) // space_width
+
+                page.append(part.center(int(text_width + to_fill), ' '))
+
+            content_lst.append(page)
+        self.content = [[font.render(row, False, 'black') for row in part] for part in content_lst]
 
     def clicked(self):
         return self.content
