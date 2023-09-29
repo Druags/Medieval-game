@@ -18,10 +18,10 @@ class Level:
         self.collision_sprites = pygame.sprite.Group()
         self.interactive_sprites = pygame.sprite.Group()
         self.borders = pygame.sprite.Group()
+        self.portals = pygame.sprite.Group()
 
         self.player = Player((700, 1600), self.all_sprites, self.collision_sprites, self.interactive_sprites,
                              self.borders)
-
 
         self.setup()
         self.interface = UserInterface(self.interactive_sprites, self.all_sprites.offset, self.player)
@@ -35,7 +35,7 @@ class Level:
             z='Ground'
         )
         self.all_sprites.world_size = self.all_sprites.sprites()[1].image.get_size()
-        self.all_sprites.world_size = (1920, 2560)
+        # self.all_sprites.world_size = (1920, 2560)
 
         world_width = self.all_sprites.world_size[0]
         world_height = self.all_sprites.world_size[1]
@@ -84,13 +84,15 @@ class Level:
                                groups=[self.all_sprites, self.interactive_sprites],
                                z='Main',
                                size_difference=size_difference,
-                               player=self.player)
+                               player=self.player,
+                               special_group=self.portals)
         for obj in tmx_data.get_layer_by_name('Interactive_objects_second_floor'):
             create_interactive(obj=obj,
                                groups=[self.all_sprites, self.interactive_sprites],
                                z='Second_floor',
                                size_difference=size_difference,
-                               player=self.player)
+                               player=self.player,
+                               special_group=self.portals)
         for obj in tmx_data.get_layer_by_name('Buildings'):
             Building(pos=(obj.x, obj.y),
                      surf=obj.image,
@@ -156,10 +158,12 @@ class CameraGroup(pygame.sprite.Group):
                 if sprite.rect.colliderect(player.line_of_sight) and sprite.z == layer:
                     offset_rect = sprite.rect.copy()
                     offset_rect.center -= self.offset
+
                     if isinstance(sprite, Player):
                         offset_rect.top -= 10
                     copy_sight = player.line_of_sight.copy()
                     copy_sight.center -= self.offset
+
                     self.display_surface.blit(sprite.image, offset_rect)
 
                     if DEBUG:

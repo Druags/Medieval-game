@@ -1,4 +1,5 @@
 import math
+import random
 
 import pygame
 
@@ -8,7 +9,7 @@ from sprites import GenericObject
 from items import Item
 
 
-def create_interactive(obj, groups, z, size_difference, player):
+def create_interactive(obj, groups, z, size_difference, player, special_group):
     if 'runestone' in obj.name:
         Runestone(pos=(obj.x, obj.y), surf=obj.image, groups=groups, z=z, size_difference=size_difference,
                   name=obj.name,
@@ -16,7 +17,8 @@ def create_interactive(obj, groups, z, size_difference, player):
                   content=obj.content)
     elif 'portal' in obj.name:
         Portal(pos=(obj.x, obj.y), surf=obj.image, groups=groups, z=z, size_difference=size_difference, name=obj.name,
-               player=player)
+               player=player,
+               portals=special_group)
     elif 'ladder' in obj.name:
         Ladder(pos=(obj.x, obj.y), surf=obj.image, groups=groups, z=z, size_difference=size_difference, name=obj.name,
                player=player)
@@ -82,10 +84,23 @@ class Runestone(Interactive):
 
 
 class Portal(Interactive):
-    def __init__(self, pos, surf, groups, z, size_difference, name, player):
-        super().__init__(pos, surf, groups, z, size_difference, name, player)
+    def __init__(self, pos, surf, groups, z, size_difference, name, player, portals):
+
+        super().__init__(pos, surf, groups+[portals], z, size_difference, name, player)
+
         self.hitbox = self.hitbox.inflate((-60 * size_difference[0], -50 * size_difference[1]))
-        self.z = LAYERS['Ground']
+        self.z = LAYERS['Interactive']
+        self.portals_coords = [portal.pos for portal in self.groups()[2].sprites()]
+
+    def clicked(self):
+
+        if self.name == 'portal_enter':
+            pos = self.groups()[2].sprites()[1].pos
+            self.player.pos = pygame.math.Vector2(pos[0] + self.size[0], pos[1] + self.size[1]*2)
+        else:
+            pos = self.groups()[2].sprites()[0].pos
+            self.player.pos = pygame.math.Vector2(pos[0] + self.size[0], pos[1] + self.size[1]*2)
+        # print(self.portals_coords)
 
 
 class Ladder(Interactive):
