@@ -9,6 +9,7 @@ from sprites import GenericObject
 from items import Item
 
 
+
 def create_interactive(obj, groups, z, size_difference, player, special_group):
     if 'runestone' in obj.name:
         Runestone(pos=(obj.x, obj.y), surf=obj.image, groups=groups, z=z, size_difference=size_difference,
@@ -31,6 +32,9 @@ def create_interactive(obj, groups, z, size_difference, player, special_group):
     elif 'arch' in obj.name:
         Arch(pos=(obj.x, obj.y), surf=obj.image, groups=groups, z=z, size_difference=size_difference, name=obj.name,
              player=player)
+    elif 'statue' in obj.name:
+        Statue(pos=(obj.x, obj.y), surf=obj.image, groups=groups, z=z, size_difference=size_difference, name=obj.name,
+               player=player)
 
 
 class Interactive(GenericObject):
@@ -49,6 +53,16 @@ class Interactive(GenericObject):
 
     def hovered(self, ):
         pass
+
+
+class Statue(Interactive):
+    def __init__(self, pos, surf, groups, z, size_difference, name, player, content=None):
+        super().__init__(pos, surf, groups, z, size_difference, name, player)
+        self.hitbox = pygame.Rect(self.hitbox.x, self.hitbox.y, self.hitbox.width, 50)
+        self.hitbox.bottom = self.rect.bottom
+        self.item = Item(self.player)
+        self.text = content
+        self.content = None
 
 
 class Runestone(Interactive):
@@ -86,21 +100,22 @@ class Runestone(Interactive):
 class Portal(Interactive):
     def __init__(self, pos, surf, groups, z, size_difference, name, player, portals):
 
-        super().__init__(pos, surf, groups+[portals], z, size_difference, name, player)
+        super().__init__(pos, surf, groups + [portals], z, size_difference, name, player)
 
         self.hitbox = self.hitbox.inflate((-60 * size_difference[0], -50 * size_difference[1]))
         self.z = LAYERS['Interactive']
         self.portals_coords = [portal.pos for portal in self.groups()[2].sprites()]
 
-    def clicked(self):
-
+    def teleport(self):
         if self.name == 'portal_enter':
             pos = self.groups()[2].sprites()[1].pos
-            self.player.pos = pygame.math.Vector2(pos[0] + self.size[0], pos[1] + self.size[1]*2)
+            self.player.pos = pygame.math.Vector2(pos[0] + self.size[0], pos[1] + self.size[1] * 2)
         else:
             pos = self.groups()[2].sprites()[0].pos
-            self.player.pos = pygame.math.Vector2(pos[0] + self.size[0], pos[1] + self.size[1]*2)
-        # print(self.portals_coords)
+            self.player.pos = pygame.math.Vector2(pos[0] + self.size[0], pos[1] + self.size[1] * 2)
+
+    def clicked(self):
+        return 'transition'
 
 
 class Ladder(Interactive):

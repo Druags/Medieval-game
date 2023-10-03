@@ -78,7 +78,6 @@ class Level:
                  groups=[self.all_sprites, self.collision_sprites],
                  z='Trees',
                  size_difference=size_difference)
-
         for obj in tmx_data.get_layer_by_name('Interactive_objects'):
             create_interactive(obj=obj,
                                groups=[self.all_sprites, self.interactive_sprites],

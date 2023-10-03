@@ -5,6 +5,7 @@ from itertools import cycle
 
 from timer import Timer
 from settings import *
+from transition import Transition
 
 
 class Button(pygame.sprite.Sprite):
@@ -136,8 +137,11 @@ class UserInterface:
 
         self.interactives = cycle([self.window.interactive_group, interactive])
 
+        self.transition = Transition()
+
         self.player = player
         self.hovered_sprite = None
+        self.clicked_sprite = None
 
         self.offset = offset
         self.mouse = pygame.mouse.get_pos()
@@ -173,7 +177,10 @@ class UserInterface:
 
     def click(self, item):
         content = item.clicked()
-        if content:
+        if content == 'transition':
+            self.transition.change_act_status()
+            self.clicked_sprite = item
+        elif content:
             self.window.content = content
             self.window.num_of_pages = len(content)
             self.window.change_status()
@@ -234,8 +241,17 @@ class UserInterface:
             self.timers[timer].update()
 
     def update(self):
-        self.update_timers()
-        self.window.update()
-        self.input()
-        if self.cursor_visible:
-            self.hover_cursor()
+        if not self.transition.active:
+            self.update_timers()
+            self.window.update()
+            self.input()
+            if self.cursor_visible:
+                self.hover_cursor()
+        else:
+            self.transition.play()
+            if self.transition.dark:
+                self.clicked_sprite.teleport()
+                self.transition.dark = False
+
+
+
