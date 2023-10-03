@@ -5,6 +5,7 @@ from itertools import cycle
 
 from timer import Timer
 from settings import *
+from transition import Transition
 
 
 class Button(pygame.sprite.Sprite):
@@ -26,6 +27,7 @@ class Button(pygame.sprite.Sprite):
 
     def close_window(self):
         self.window.change_status()
+        self.window.cur_page = 0
         self.window.interface.change_inter()
 
     def next_page(self):
@@ -65,6 +67,7 @@ class Window:
         self.setup()
 
         self.text_rows_page = (int(WINDOW_HEIGHT) - self.margin_top) // (self.font_height + self.line_spacing) - 2
+        self.content = None
 
     def setup(self):
         Button(window=self,
@@ -91,25 +94,6 @@ class Window:
 
     def change_status(self):
         self.active = not self.active
-
-    def get_content(self, content):
-        content_len = len(content) * self.one_letter_width
-        text_rows_content = math.ceil(content_len / WINDOW_WIDTH)
-        self.num_of_pages = math.ceil(text_rows_content / self.text_rows_page)
-        content_lst = []
-        for page in range(self.num_of_pages):
-            page = []
-            for x in range(self.text_rows_page):
-                part = content[0:self.text_width]
-                last_space = part.rfind(' ')
-                part = part[0: last_space]
-                content = content[last_space + 1:]
-                to_fill = (self.window.width - len(part) * self.one_letter_width) // self.space_width
-
-                page.append(part.center(self.text_width + to_fill, ' '))
-
-            content_lst.append(page)
-        self.content = [[self.font.render(row, False, 'black') for row in part] for part in content_lst]
 
     def display_content(self):
 
@@ -148,11 +132,16 @@ class WindowGroup(pygame.sprite.Group):
 class UserInterface:
     def __init__(self, interactive, offset, player):
         self.window = Window(self)
+
         self.cur_interactive = interactive
+
         self.interactives = cycle([self.window.interactive_group, interactive])
+
+        self.transition = Transition()
 
         self.player = player
         self.hovered_sprite = None
+        self.clicked_sprite = None
 
         self.offset = offset
         self.mouse = pygame.mouse.get_pos()
@@ -160,11 +149,19 @@ class UserInterface:
 
         self.display_surface = pygame.display.get_surface()
 
-        self.timers = {'click': Timer(600)}
+        self.timers = {'click': Timer(400)}
 
         self.setup()
 
     def setup(self):
+        for interactive_item in self.cur_interactive:
+            if hasattr(interactive_item, 'set_content'):
+                interactive_item.set_content(
+                    one_letter_width=self.window.one_letter_width,
+                    space_width=self.window.space_width,
+                    text_rows_page=self.window.text_rows_page,
+                    text_width=self.window.text_width,
+                    font=self.window.font)
         self.font = pygame.font.Font('../font/LycheeSoda.ttf', 25)
         self.text = self.font.render('Interact', False, '#dadbdf')
         self.text_rect = self.text.get_rect().inflate(10, 10)
@@ -180,8 +177,12 @@ class UserInterface:
 
     def click(self, item):
         content = item.clicked()
-        if content:
-            self.window.get_content(content)
+        if content == 'transition':
+            self.transition.change_act_status()
+            self.clicked_sprite = item
+        elif content:
+            self.window.content = content
+            self.window.num_of_pages = len(content)
             self.window.change_status()
             self.change_inter()
 
@@ -240,8 +241,17 @@ class UserInterface:
             self.timers[timer].update()
 
     def update(self):
-        self.update_timers()
-        self.window.update()
-        self.input()
-        if self.cursor_visible:
-            self.hover_cursor()
+        if not self.transition.active:
+            self.update_timers()
+            self.window.update()
+            self.input()
+            if self.cursor_visible:
+                self.hover_cursor()
+        else:
+            self.transition.play()
+            if self.transition.dark:
+                self.clicked_sprite.teleport()
+                self.transition.dark = False
+
+
+
