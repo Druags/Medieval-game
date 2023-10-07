@@ -9,7 +9,6 @@ from sprites import GenericObject
 from items import Item
 
 
-
 def create_interactive(obj, groups, z, size_difference, player, special_group):
     if 'runestone' in obj.name:
         Runestone(pos=(obj.x, obj.y), surf=obj.image, groups=groups, z=z, size_difference=size_difference,

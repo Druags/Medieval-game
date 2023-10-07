@@ -13,7 +13,7 @@ class Generic(pygame.sprite.Sprite):
         self.hitbox = self.rect.copy()
         self.hitbox_status = True
 
-    def update_status(self):
+    def switch_status(self):
         self.hitbox_status = not self.hitbox_status
 
 

@@ -26,7 +26,7 @@ class Button(pygame.sprite.Sprite):
         self.click_action()
 
     def close_window(self):
-        self.window.change_status()
+        self.window.switch_status()
         self.window.cur_page = 0
         self.window.interface.change_interactive_group()
 
@@ -88,7 +88,7 @@ class Window:
                click_action='next',
                group=self.interactive_group)
 
-    def change_status(self):
+    def switch_status(self):
         self.active = not self.active
 
     def display_content(self):
@@ -104,7 +104,7 @@ class Window:
     def input(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_ESCAPE]:
-            self.change_status()
+            self.switch_status()
 
     def update(self):
 
@@ -180,7 +180,7 @@ class UserInterface:
         elif content:
             self.window.content = content
             self.window.num_of_pages = len(content)
-            self.window.change_status()
+            self.window.switch_status()
             self.change_interactive_group()
 
     def is_hovered(self, item):
