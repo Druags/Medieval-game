@@ -26,6 +26,17 @@ class Level:
         self.setup()
         self.interface = UserInterface(self.interactive_sprites, self.all_sprites.offset, self.player)
 
+    def resize_surf(self, surf):
+        return pygame.transform.scale(surf,
+                                      (surf.get_size()[0] * self.size_difference[0],
+                                       surf.get_size()[1] * self.size_difference[1]))
+
+    def change_object_pos(self, pos):
+        return [pos[i] * self.size_difference[i] for i in range(2)]
+
+    def change_tile_pos(self, pos):
+        return [pos[i] * self.size_difference[i]*TILE_SIZE for i in range(2)]
+
     def setup(self):
         tmx_data = load_pygame('../data/game_map.tmx')
         Generic(
@@ -40,83 +51,79 @@ class Level:
         world_width = self.all_sprites.world_size[0]
         world_height = self.all_sprites.world_size[1]
 
-        size_difference = (world_width // (tmx_data.width * TILE_SIZE), world_height // (tmx_data.height * TILE_SIZE))
+        self.size_difference = (world_width // (tmx_data.width * TILE_SIZE),
+                                world_height // (tmx_data.height * TILE_SIZE))
 
         for x, y, surf in tmx_data.get_layer_by_name('Walls_front').tiles():
-            Wall(pos=(x, y),
-                 surf=surf,
+            Wall(pos=self.change_tile_pos((x, y)),
+                 surf=self.resize_surf(surf),
                  groups=[self.all_sprites, self.collision_sprites],
-                 size_difference=size_difference,
                  wall_type='front')
         for x, y, surf in tmx_data.get_layer_by_name('Walls_back').tiles():
-            Wall(pos=(x, y),
-                 surf=surf,
+            Wall(pos=self.change_tile_pos((x, y)),
+                 surf=self.resize_surf(surf),
                  groups=[self.all_sprites, self.collision_sprites],
-                 size_difference=size_difference,
                  wall_type='back')
         for x, y, surf in tmx_data.get_layer_by_name('Walls_front_second_floor').tiles():
-            Wall(pos=(x, y),
-                 surf=surf,
+            Wall(pos=self.change_tile_pos((x, y)),
+                 surf=self.resize_surf(surf),
                  groups=[self.all_sprites, self.collision_sprites],
-                 size_difference=size_difference,
                  wall_type='front_second_floor')
         for x, y, surf in tmx_data.get_layer_by_name('Roof_1').tiles():
-            Roof(pos=(x, y),
-                 surf=surf,
+            Roof(pos=self.change_tile_pos((x, y)),
+                 surf=self.resize_surf(surf),
                  groups=self.all_sprites,
-                 z='Walls_back',
-                 size_difference=size_difference)
+                 z='Walls_back')
         for x, y, surf in tmx_data.get_layer_by_name('Roof_2').tiles():
-            Roof(pos=(x, y),
-                 surf=surf,
+            Roof(pos=self.change_tile_pos((x, y)),
+                 surf=self.resize_surf(surf),
                  groups=self.all_sprites,
-                 z='Second_floor_roof',
-                 size_difference=size_difference)
+                 z='Second_floor_roof')
         for obj in tmx_data.get_layer_by_name('Trees'):
-            Tree(pos=(obj.x, obj.y),
-                 surf=obj.image,
+            Tree(pos=self.change_object_pos((obj.x, obj.y)),
+                 surf=self.resize_surf(obj.image),
                  groups=[self.all_sprites, self.collision_sprites],
-                 z='Trees',
-                 size_difference=size_difference)
+                 z='Trees')
         for obj in tmx_data.get_layer_by_name('Interactive_objects'):
-            create_interactive(obj=obj,
+
+            create_interactive(pos=self.change_object_pos((obj.x, obj.y)),
+                               surf=self.resize_surf(obj.image),
+                               name=obj.name,
                                groups=[self.all_sprites, self.interactive_sprites],
                                z='Main',
-                               size_difference=size_difference,
                                player=self.player,
+                               content=obj.content if hasattr(obj, 'content') else None,
                                special_group=self.portals)
         for obj in tmx_data.get_layer_by_name('Interactive_objects_second_floor'):
-            create_interactive(obj=obj,
+            create_interactive(pos=self.change_object_pos((obj.x, obj.y)),
+                               surf=self.resize_surf(obj.image),
+                               name=obj.name,
                                groups=[self.all_sprites, self.interactive_sprites],
                                z='Second_floor',
-                               size_difference=size_difference,
                                player=self.player,
+                               content=obj.content if hasattr(obj, 'content') else None,
                                special_group=self.portals)
         for obj in tmx_data.get_layer_by_name('Buildings'):
-            Building(pos=(obj.x, obj.y),
-                     surf=obj.image,
+            Building(pos=self.change_object_pos((obj.x, obj.y)),
+                     surf=self.resize_surf(obj.image),
                      groups=[self.all_sprites, self.collision_sprites],
-                     z='Second_floor_buildings',
-                     size_difference=size_difference)
+                     z='Second_floor_buildings')
         for layer in ['Stones', 'Small_plants']:
             for obj in tmx_data.get_layer_by_name(layer):
-                Decoration(pos=(obj.x, obj.y),
-                           surf=obj.image,
+                Decoration(pos=self.change_object_pos((obj.x, obj.y)),
+                           surf=self.resize_surf(obj.image),
                            groups=[self.all_sprites],
-                           z='Decorations',
-                           size_difference=size_difference)
+                           z='Decorations')
         for obj in tmx_data.get_layer_by_name('Borders_first_floor'):
-            Border(pos=(round(obj.x), round(obj.y)),
-                   size=(round(obj.width), round(obj.height)),
+            Border(pos=self.change_object_pos((round(obj.x), round(obj.y))),
+                   size=(round(obj.width)*self.size_difference[0], round(obj.height)*self.size_difference[1]),
                    groups=[self.borders],
-                   size_difference=size_difference,
                    floor=0
                    )
         for obj in tmx_data.get_layer_by_name('Borders_second_floor'):
-            Border(pos=(round(obj.x), round(obj.y)),
-                   size=(round(obj.width), round(obj.height)),
+            Border(pos=self.change_object_pos((round(obj.x), round(obj.y))),
+                   size=(round(obj.width)*self.size_difference[0], round(obj.height)*self.size_difference[1]),
                    groups=[self.borders],
-                   size_difference=size_difference,
                    floor=1
                    )
 
@@ -166,6 +173,10 @@ class CameraGroup(pygame.sprite.Group):
                     self.display_surface.blit(sprite.image, offset_rect)
 
                     if DEBUG:
+                        if hasattr(sprite, 'interaction_hitbox'):
+                            hitbox_copy = sprite.interaction_hitbox.copy()
+                            hitbox_copy.center -= self.offset
+                            pygame.draw.rect(self.display_surface, 'blue', hitbox_copy, 10)
                         if hasattr(sprite, 'hitbox') and sprite.hitbox:
                             hitbox_copy = sprite.hitbox.copy()
                             hitbox_copy.center -= self.offset

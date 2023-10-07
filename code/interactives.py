@@ -1,6 +1,4 @@
 import math
-import random
-
 import pygame
 
 from settings import *
@@ -9,42 +7,39 @@ from sprites import GenericObject
 from items import Item
 
 
-def create_interactive(obj, groups, z, size_difference, player, special_group):
-    if 'runestone' in obj.name:
-        Runestone(pos=(obj.x, obj.y), surf=obj.image, groups=groups, z=z, size_difference=size_difference,
-                  name=obj.name,
-                  player=player,
-                  content=obj.content)
-    elif 'portal' in obj.name:
-        Portal(pos=(obj.x, obj.y), surf=obj.image, groups=groups, z=z, size_difference=size_difference, name=obj.name,
-               player=player,
-               portals=special_group)
-    elif 'ladder' in obj.name:
-        Ladder(pos=(obj.x, obj.y), surf=obj.image, groups=groups, z=z, size_difference=size_difference, name=obj.name,
-               player=player)
-    elif 'door' in obj.name:
-        Door(pos=(obj.x, obj.y), surf=obj.image, groups=groups, z=z, size_difference=size_difference, name=obj.name,
-             player=player)
-    elif 'chest' in obj.name:
-        Chest(pos=(obj.x, obj.y), surf=obj.image, groups=groups, z=z, size_difference=size_difference, name=obj.name,
-              player=player)
-    elif 'arch' in obj.name:
-        Arch(pos=(obj.x, obj.y), surf=obj.image, groups=groups, z=z, size_difference=size_difference, name=obj.name,
-             player=player)
-    elif 'statue' in obj.name:
-        Statue(pos=(obj.x, obj.y), surf=obj.image, groups=groups, z=z, size_difference=size_difference, name=obj.name,
-               player=player)
+def create_interactive(pos, surf, name, groups, z, player, content=None, special_group=None):
+    if 'runestone' in name:
+        Runestone(pos=pos, surf=surf, groups=groups, z=z,
+                  name=name, player=player, content=content)
+    elif 'portal' in name:
+        Portal(pos=pos, surf=surf, groups=groups, z=z,
+               name=name, player=player, portals=special_group)
+    elif 'ladder' in name:
+        Ladder(pos=pos, surf=surf, groups=groups, z=z,
+               name=name, player=player, )
+    elif 'door' in name:
+        Door(pos=pos, surf=surf, groups=groups, z=z,
+             name=name, player=player, )
+    elif 'chest' in name:
+        Chest(pos=pos, surf=surf, groups=groups, z=z,
+              name=name, player=player, )
+    elif 'arch' in name:
+        Arch(pos=pos, surf=surf, groups=groups, z=z,
+             name=name, player=player, )
+    elif 'statue' in name:
+        Statue(pos=pos, surf=surf, groups=groups, z=z,
+               name=name, player=player, )
 
 
 class Interactive(GenericObject):
-    def __init__(self, pos, surf, groups, z, size_difference, name, player):
-        super().__init__(pos, surf, groups, z, size_difference)
+    def __init__(self, pos, surf, groups, z, name, player):
+        super().__init__(pos, surf, groups, z)
         self.name = name
         self.mouse_interaction = False if 'arch' in name or 'ladder' in name else True
         self.player = player
         self.active = False if 'arch' in name or 'ladder' in name else True
-
-        self.interaction_hitbox = self.hitbox.inflate((20 * size_difference[0], 20 * size_difference[1]))
+        self.size = surf.get_size()
+        self.interaction_hitbox = self.hitbox.inflate((20, 20))
         self.is_hovered = False
 
     def clicked(self):
@@ -55,8 +50,8 @@ class Interactive(GenericObject):
 
 
 class Statue(Interactive):
-    def __init__(self, pos, surf, groups, z, size_difference, name, player, content=None):
-        super().__init__(pos, surf, groups, z, size_difference, name, player)
+    def __init__(self, pos, surf, groups, z, name, player, content=None):
+        super().__init__(pos, surf, groups, z, name, player)
         self.hitbox = pygame.Rect(self.hitbox.x, self.hitbox.y, self.hitbox.width, 50)
         self.hitbox.bottom = self.rect.bottom
         self.item = Item(self.player)
@@ -65,10 +60,12 @@ class Statue(Interactive):
 
 
 class Runestone(Interactive):
-    def __init__(self, pos, surf, groups, z, size_difference, name, player, content):
-        super().__init__(pos, surf, groups, z, size_difference, name, player)
+    def __init__(self, pos, surf, groups, z, name, player, content):
+        super().__init__(pos, surf, groups, z, name, player)
         self.hitbox = pygame.Rect(self.hitbox.x, self.hitbox.y, self.hitbox.width, 50)
         self.hitbox.bottom = self.rect.bottom
+
+        self.interaction_hitbox = self.hitbox.inflate((self.hitbox.width*1.3, self.hitbox.height*1.3))
         self.item = Item(self.player)
         self.text = content
         self.content = None
@@ -97,11 +94,12 @@ class Runestone(Interactive):
 
 
 class Portal(Interactive):
-    def __init__(self, pos, surf, groups, z, size_difference, name, player, portals):
+    def __init__(self, pos, surf, groups, z, name, player, portals):
 
-        super().__init__(pos, surf, groups + [portals], z, size_difference, name, player)
+        super().__init__(pos, surf, groups + [portals], z, name, player)
 
-        self.hitbox = self.hitbox.inflate((-60 * size_difference[0], -50 * size_difference[1]))
+        self.hitbox = self.rect.inflate((-self.size[0]*0.8, -self.size[1]*0.8))
+        self.interaction_hitbox = self.hitbox.inflate((self.hitbox.width * 1.3, self.hitbox.height * 1.3))
         self.z = LAYERS['Interactive']
         self.portals_coords = [portal.pos for portal in self.groups()[2].sprites()]
 
@@ -118,16 +116,17 @@ class Portal(Interactive):
 
 
 class Ladder(Interactive):
-    def __init__(self, pos, surf, groups, z, size_difference, name, player):
-        super().__init__(pos, surf, groups, z, size_difference, name, player)
+    def __init__(self, pos, surf, groups, z, name, player):
+        super().__init__(pos, surf, groups, z, name, player)
         self.z = LAYERS['Interactive']
 
 
 class Door(Interactive):
-    def __init__(self, pos, surf, groups, z, size_difference, name, player):
-        super().__init__(pos, surf, groups, z, size_difference, name, player)
-        closed_door = self.resize_surf(surf)
-        opened_door = self.resize_surf(pygame.image.load('../data/objects/open_door.png'))
+    def __init__(self, pos, surf, groups, z, name, player):
+        super().__init__(pos, surf, groups, z, name, player)
+        closed_door = surf
+        opened_door = pygame.transform.scale(pygame.image.load('../data/objects/open_door.png'),
+                                             closed_door.get_size())
         self.z = LAYERS['Ground']
         self.surfaces = [closed_door, opened_door]
         self.current_surf = 0
@@ -146,10 +145,11 @@ class Door(Interactive):
 
 
 class Chest(Interactive):
-    def __init__(self, pos, surf, groups, z, size_difference, name, player):
-        super().__init__(pos, surf, groups, z, size_difference, name, player)
-        opened_chest = self.resize_surf(surf)
-        closed_chest = self.resize_surf(pygame.image.load('../data/objects/open_chest.png'))
+    def __init__(self, pos, surf, groups, z, name, player):
+        super().__init__(pos, surf, groups, z, name, player)
+        opened_chest = surf
+        closed_chest = pygame.transform.scale(pygame.image.load('../data/objects/open_chest.png'),
+                                              opened_chest.get_size())
         self.surfaces = [opened_chest, closed_chest]
         self.current_surf = 0
         self.image = self.surfaces[self.current_surf]
@@ -166,5 +166,5 @@ class Chest(Interactive):
 
 
 class Arch(Interactive):
-    def __init__(self, pos, surf, groups, z, size_difference, name, player):
-        super().__init__(pos, surf, groups, z, size_difference, name, player)
+    def __init__(self, pos, surf, groups, z, name, player):
+        super().__init__(pos, surf, groups, z, name, player)
