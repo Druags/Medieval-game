@@ -12,7 +12,6 @@ class Button(pygame.sprite.Sprite):
     def __init__(self, window, pos, size, click_action, group, color='white'):
         super().__init__(group)
         self.window = window
-        # self.rect = pygame.Rect((x, y), (width, height))
         self.interaction_hitbox = pygame.Rect(pos, size)
         self.border = self.interaction_hitbox.inflate(2, 2)
         self.color = color
@@ -36,13 +35,13 @@ class Button(pygame.sprite.Sprite):
     def prev_page(self):
         self.window.cur_page -= 1 if self.window.cur_page > 0 else 0
 
-    def hovered(self, ):
-        pass
+    def is_hovered(self, mouse_position):
+        return self.window.is_active and self.interaction_hitbox.collidepoint( mouse_position)
 
 
 class Window:
     def __init__(self, interface):
-        self.active = False
+        self.is_active = False
         self.interface = interface
 
         self.display_surf = pygame.display.get_surface()
@@ -52,13 +51,13 @@ class Window:
         self.rect = pygame.Rect(self.x, self.y, WINDOW_WIDTH, WINDOW_HEIGHT)
         self.border = self.rect.inflate(2, 2)
 
-        self.cur_page = 0
-
         self.interactive_group = WindowGroup()
         self.font_setup()
         self.buttons_setup()
 
-        self.text_rows_page = (int(WINDOW_HEIGHT) - self.margin_top) // (self.font_height + self.line_spacing) - 2
+        self.cur_page = 0
+        self.text_rows_in_one_page = (int(WINDOW_HEIGHT) - self.margin_top) // (
+                    self.font_height + self.line_spacing) - 2
         self.content = None
 
     def font_setup(self):
@@ -89,13 +88,17 @@ class Window:
                group=self.interactive_group)
 
     def switch_status(self):
-        self.active = not self.active
+        self.is_active = not self.is_active
 
-    def display_content(self):
+    def set_content(self, content):
+        self.content = content
+        self.num_of_pages = len(content)
 
+    def draw_window(self):
         pygame.draw.rect(self.display_surf, 'white', self.rect)
         pygame.draw.rect(self.display_surf, 'black', self.border, 2, 2)
-        self.interactive_group.custom_draw()
+
+    def draw_content(self):
         for i, row in enumerate(self.content[self.cur_page]):
             self.display_surf.blit(row,
                                    (self.rect.x + self.margin_left,
@@ -107,10 +110,10 @@ class Window:
             self.switch_status()
 
     def update(self):
-
-        self.input()
-        if self.active:
-            self.display_content()
+        if self.is_active:
+            self.draw_window()
+            self.interactive_group.custom_draw()
+            self.draw_content()
             self.input()
 
 
@@ -155,7 +158,7 @@ class UserInterface:
                 interactive_item.set_content(
                     one_letter_width=self.window.one_letter_width,
                     space_width=self.window.space_width,
-                    text_rows_page=self.window.text_rows_page,
+                    text_rows_page=self.window.text_rows_in_one_page,
                     text_width=self.window.text_width,
                     font=self.window.font)
         self.font = pygame.font.Font('../font/LycheeSoda.ttf', 25)
@@ -168,78 +171,61 @@ class UserInterface:
 
     def change_interactive_group(self):
         self.current_interactive_group = next(self.all_interactive_groups)
-        self.hovered_sprite.hovered()
-        self.set_cursor_visibility()
-        self.hovered_sprite = None
 
     def click(self, item):
         content = item.clicked()
-        if content == 'transition':
+        if content == 'teleport':
             self.screen_transition.change_act_status()
             self.clicked_sprite = item
         elif content:
-            self.window.content = content
-            self.window.num_of_pages = len(content)
+            self.window.set_content(content)
             self.window.switch_status()
             self.change_interactive_group()
-
-    def is_hovered(self, item):
-        return item.interaction_hitbox.collidepoint(self.mouse_position) and \
-               item.interaction_hitbox.colliderect(self.player) and \
-               item.mouse_interaction or self.window.active and item.interaction_hitbox.collidepoint(
-            self.mouse_position)
+            self.switch_cursor_visibility()
+            self.hovered_sprite = None
 
     def hover(self):
         if self.hovered_sprite is None:
-            for inter_item in self.current_interactive_group:
-                if self.is_hovered(inter_item):
-                    self.hovered_sprite = inter_item
-                    self.hovered_sprite.hovered()
-                    self.set_cursor_visibility()
+            for item in self.current_interactive_group:
+                if item.is_hovered(self.mouse_position):
+                    self.hovered_sprite = item
+                    self.switch_cursor_visibility()
                     break
-        elif not self.is_hovered(self.hovered_sprite):
-            self.hovered_sprite.hovered()
-            self.set_cursor_visibility()
+        elif not self.hovered_sprite.is_hovered(self.mouse_position):
+            self.switch_cursor_visibility()
             self.hovered_sprite = None
 
-    def set_cursor_visibility(self):
+    def switch_cursor_visibility(self):
         self.cursor_visibility = pygame.mouse.get_visible()
         pygame.mouse.set_visible(not self.cursor_visibility)
 
     def cursor_in_hover_status(self):
-
         self.text_rect.center = pygame.mouse.get_pos()
         text_x = self.text_rect.topleft[0] + (self.text_rect.width - self.text_size[0]) // 2
         text_y = self.text_rect.topleft[1] + (self.text_rect.height - self.text_size[1]) // 2
-
         self.display_surface.blit(self.shape_surf, self.text_rect)
-
         pygame.draw.rect(self.display_surface, '#6f4641', self.text_rect.inflate(2, 2), 2, 4)
-
         self.display_surface.blit(self.text, (text_x, text_y))
+
+    def is_able_to_click(self):
+        return not self.timers['click'].is_active and self.hovered_sprite
 
     def input(self):
         self.mouse_position = pygame.mouse.get_pos()
-        if not self.window.active:
-            self.mouse_position = (
-                self.mouse_position[0] + self.screen_offset.x, self.mouse_position[1] + self.screen_offset.y)
-        else:
-            self.mouse_position = pygame.mouse.get_pos()
-
+        if not self.window.is_active:
+            self.mouse_position = (self.mouse_position[0] + self.screen_offset.x,
+                                   self.mouse_position[1] + self.screen_offset.y)
         buttons = pygame.mouse.get_pressed()
-        # click
-        if buttons[0] and not self.timers['click'].active:
-            if self.hovered_sprite:
-                self.click(self.hovered_sprite)
+        if buttons[0] and self.is_able_to_click():
+            self.click(self.hovered_sprite)
             self.timers['click'].activate()
-        # hover
         self.hover()
 
     def update_timers(self):
         for timer in self.timers:
             self.timers[timer].update()
 
-    def update(self):
+    def update(self):  # TODO работа transition сделана неуклюже и громоздко, постараться исправить
         if not self.screen_transition.active:
             self.update_timers()
             self.window.update()

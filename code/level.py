@@ -6,7 +6,6 @@ from player import Player
 from sprites import Generic, Tree, Wall, Building, Roof, Decoration
 from interactives import create_interactive
 from borders import Border
-from items import Item
 from interface import UserInterface
 
 
@@ -129,7 +128,7 @@ class Level:
 
     def run(self, dt):
         self.all_sprites.custom_draw(self.player)
-        if not self.interface.window.active:
+        if not self.interface.window.is_active:
             self.player.update(dt)
         self.interface.update()
 

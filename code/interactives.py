@@ -4,8 +4,6 @@ import pygame
 from settings import *
 from sprites import GenericObject
 
-from items import Item
-
 
 def create_interactive(pos, surf, name, groups, z, player, content=None, special_group=None):
     if 'runestone' in name:
@@ -35,18 +33,21 @@ class Interactive(GenericObject):
     def __init__(self, pos, surf, groups, z, name, player):
         super().__init__(pos, surf, groups, z)
         self.name = name
-        self.mouse_interaction = False if 'arch' in name or 'ladder' in name else True
         self.player = player
-        self.active = False if 'arch' in name or 'ladder' in name else True
+        self.is_active = self.choose_activity_by_type(name)
         self.size = surf.get_size()
         self.interaction_hitbox = self.hitbox.inflate((20, 20))
-        self.is_hovered = False
+
+    def choose_activity_by_type(self, name):
+        return False if 'arch' in name or 'ladder' in name else True
 
     def clicked(self):
         pass
 
-    def hovered(self, ):
-        pass
+    def is_hovered(self, mouse_position):
+        return self.is_active and \
+               self.interaction_hitbox.collidepoint(mouse_position) and \
+               self.interaction_hitbox.colliderect(self.player)
 
 
 class Statue(Interactive):
@@ -54,7 +55,6 @@ class Statue(Interactive):
         super().__init__(pos, surf, groups, z, name, player)
         self.hitbox = pygame.Rect(self.hitbox.x, self.hitbox.y, self.hitbox.width, 50)
         self.hitbox.bottom = self.rect.bottom
-        self.item = Item(self.player)
         self.text = content
         self.content = None
 
@@ -65,8 +65,7 @@ class Runestone(Interactive):
         self.hitbox = pygame.Rect(self.hitbox.x, self.hitbox.y, self.hitbox.width, 50)
         self.hitbox.bottom = self.rect.bottom
 
-        self.interaction_hitbox = self.hitbox.inflate((self.hitbox.width*1.3, self.hitbox.height*1.3))
-        self.item = Item(self.player)
+        self.interaction_hitbox = self.hitbox.inflate((self.hitbox.width * 1.3, self.hitbox.height * 1.3))
         self.text = content
         self.content = None
 
@@ -98,12 +97,12 @@ class Portal(Interactive):
 
         super().__init__(pos, surf, groups + [portals], z, name, player)
 
-        self.hitbox = self.rect.inflate((-self.size[0]*0.8, -self.size[1]*0.8))
+        self.hitbox = self.rect.inflate((-self.size[0] * 0.8, -self.size[1] * 0.8))
         self.interaction_hitbox = self.hitbox.inflate((self.hitbox.width * 1.3, self.hitbox.height * 1.3))
         self.z = LAYERS['Interactive']
         self.portals_coords = [portal.pos for portal in self.groups()[2].sprites()]
 
-    def teleport(self):
+    def teleport(self):  # TODO механика телепорта и создания группы телепортов неудобна, нужно исправить
         if self.name == 'portal_enter':
             pos = self.groups()[2].sprites()[1].pos
             self.player.pos = pygame.math.Vector2(pos[0] + self.size[0], pos[1] + self.size[1] * 2)
@@ -112,7 +111,7 @@ class Portal(Interactive):
             self.player.pos = pygame.math.Vector2(pos[0] + self.size[0], pos[1] + self.size[1] * 2)
 
     def clicked(self):
-        return 'transition'
+        return 'teleport'
 
 
 class Ladder(Interactive):
@@ -140,7 +139,7 @@ class Door(Interactive):
             self.current_surf = 1
         else:
             self.current_surf = 0
-        self.active = not self.active
+        self.active = not self.is_active
         self.image = self.surfaces[self.current_surf]
 
 

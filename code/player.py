@@ -39,7 +39,7 @@ class Player(pygame.sprite.Sprite):
     def input(self):
         keys = pygame.key.get_pressed()
         if DEBUG:
-            if keys[pygame.K_SPACE] and not self.timers['input_timer'].active:
+            if keys[pygame.K_SPACE] and not self.timers['input_timer'].is_active:
                 self.hitbox_active = not self.hitbox_active
                 self.timers['input_timer'].activate()
 
@@ -94,7 +94,7 @@ class Player(pygame.sprite.Sprite):
             for sprite in self.interactive_sprites.sprites():
                 if sprite.name == 'ladder' and self.rect.colliderect(sprite.hitbox):
                     self.collide_ladders(sprite)
-                elif self.rect.colliderect(sprite.hitbox) and sprite.active:
+                elif self.rect.colliderect(sprite.hitbox) and sprite.is_active:
                     self.collide(sprite, direction)
             for sprite in self.collision_sprites.sprites():
                 if hasattr(sprite, 'hitbox') and sprite.hitbox and sprite.hitbox_status:

@@ -74,7 +74,7 @@ class UserInterface:
 
     def change_inter(self):
         self.cur_interactive = next(self.interactives)
-        self.hovered_sprite.hovered()
+        self.hovered_sprite.is_hovered()
         self.change_cursor()
         self.hovered_sprite = None
 
@@ -97,7 +97,7 @@ class UserInterface:
                     self.change_cursor()
                     break
         elif not self.check_hover(self.hovered_sprite):
-            self.hovered_sprite.hovered()
+            self.hovered_sprite.is_hovered()
             self.change_cursor()
             self.hovered_sprite = None
 
@@ -119,7 +119,7 @@ class UserInterface:
         self.mouse = pygame.mouse.get_pos()
         buttons = pygame.mouse.get_pressed()
         # click
-        if buttons[0] and not self.timers['click'].active:
+        if buttons[0] and not self.timers['click'].is_active:
             self.click()
             self.timers['click'].activate()
         # hover
