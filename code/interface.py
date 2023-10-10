@@ -1,5 +1,3 @@
-import math
-
 import pygame
 from itertools import cycle
 
@@ -36,7 +34,7 @@ class Button(pygame.sprite.Sprite):
         self.window.cur_page -= 1 if self.window.cur_page > 0 else 0
 
     def is_hovered(self, mouse_position):
-        return self.window.is_active and self.interaction_hitbox.collidepoint( mouse_position)
+        return self.window.is_active and self.interaction_hitbox.collidepoint(mouse_position)
 
 
 class Window:
@@ -52,15 +50,13 @@ class Window:
         self.border = self.rect.inflate(2, 2)
 
         self.interactive_group = WindowGroup()
-        self.font_setup()
+        self.text_setup()
         self.buttons_setup()
 
         self.cur_page = 0
-        self.text_rows_in_one_page = (int(WINDOW_HEIGHT) - self.margin_top) // (
-                    self.font_height + self.line_spacing) - 2
         self.content = None
 
-    def font_setup(self):
+    def text_setup(self):
         self.font_height = 25
         self.font = pygame.font.Font('../font/DiaryOfAn8BitMage-lYDD.ttf', self.font_height)
         self.one_letter_width = self.font.render('a', False, 'black').get_size()[0]
@@ -69,6 +65,8 @@ class Window:
         self.line_spacing = 10
         self.margin_top = 10
         self.margin_left = 10
+        self.text_rows_in_one_page = (int(WINDOW_HEIGHT) - self.margin_top) // (
+                self.font_height + self.line_spacing) - 2
 
     def buttons_setup(self):
         Button(window=self,
@@ -104,17 +102,11 @@ class Window:
                                    (self.rect.x + self.margin_left,
                                     self.rect.y + self.margin_top + i * (self.font_height + self.line_spacing)))
 
-    def input(self):
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_ESCAPE]:
-            self.switch_status()
-
     def update(self):
         if self.is_active:
             self.draw_window()
             self.interactive_group.custom_draw()
             self.draw_content()
-            self.input()
 
 
 class WindowGroup(pygame.sprite.Group):
@@ -129,28 +121,23 @@ class WindowGroup(pygame.sprite.Group):
 
 
 class UserInterface:
-    def __init__(self, interactive, offset, player):
+    def __init__(self, interactive_items, offset, player):
         self.window = Window(self)
-
-        self.current_interactive_group = interactive
-
-        self.all_interactive_groups = cycle([self.window.interactive_group, interactive])
-
         self.screen_transition = Transition()
-
         self.player = player
-        self.hovered_sprite = None
-        self.clicked_sprite = None
-
         self.screen_offset = offset
         self.mouse_position = pygame.mouse.get_pos()
         self.cursor_visibility = False
-
         self.display_surface = pygame.display.get_surface()
-
         self.timers = {'click': Timer(400)}
-
+        self.setup_sprites(interactive_items)
         self.setup()
+
+    def setup_sprites(self, interactive_items):
+        self.current_interactive_group = interactive_items
+        self.all_interactive_groups = cycle([self.window.interactive_group, interactive_items])
+        self.hovered_sprite = None
+        self.clicked_sprite = None
 
     def setup(self):
         for interactive_item in self.current_interactive_group:
@@ -211,10 +198,16 @@ class UserInterface:
         return not self.timers['click'].is_active and self.hovered_sprite
 
     def input(self):
+        keys = pygame.key.get_pressed()
         self.mouse_position = pygame.mouse.get_pos()
         if not self.window.is_active:
             self.mouse_position = (self.mouse_position[0] + self.screen_offset.x,
                                    self.mouse_position[1] + self.screen_offset.y)
+        else:
+            if keys[pygame.K_ESCAPE]:
+                self.window.switch_status()
+                self.change_interactive_group()
+
         buttons = pygame.mouse.get_pressed()
         if buttons[0] and self.is_able_to_click():
             self.click(self.hovered_sprite)

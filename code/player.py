@@ -2,7 +2,6 @@ import pygame
 from settings import *
 
 from timer import Timer
-from borders import Border
 
 
 class Player(pygame.sprite.Sprite):
@@ -92,6 +91,7 @@ class Player(pygame.sprite.Sprite):
     def collision_check(self, direction):
         if self.hitbox_active:
             for sprite in self.interactive_sprites.sprites():
+
                 if sprite.name == 'ladder' and self.rect.colliderect(sprite.hitbox):
                     self.collide_ladders(sprite)
                 elif self.rect.colliderect(sprite.hitbox) and sprite.is_active:
@@ -103,15 +103,6 @@ class Player(pygame.sprite.Sprite):
             for sprite in self.borders.sprites():
                 if sprite.floor == self.current_floor:
                     self.collide(sprite, direction)
-
-    def check_mouse(self, sprite):
-        mouse_pos = pygame.mouse.get_pos()
-        offset_mouse_pos = (mouse_pos[0] + self.groups()[0].offset.x,
-                            mouse_pos[1] + self.groups()[0].offset[1])
-        if sprite.rect.collidepoint(offset_mouse_pos):
-            return True
-        else:
-            return False
 
     def move(self, dt):
         # нормализация вектора

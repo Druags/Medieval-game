@@ -1,5 +1,6 @@
 import math
 import pygame
+from itertools import cycle
 
 from settings import *
 from sprites import GenericObject
@@ -82,7 +83,6 @@ class Runestone(Interactive):
                 part = part[0: last_space]
                 self.text = self.text[last_space + 1:]
                 to_fill = (WINDOW_WIDTH - len(part) * one_letter_width) // space_width
-
                 page.append(part.center(int(text_width + to_fill), ' '))
 
             content_lst.append(page)
@@ -94,9 +94,7 @@ class Runestone(Interactive):
 
 class Portal(Interactive):
     def __init__(self, pos, surf, groups, z, name, player, portals):
-
         super().__init__(pos, surf, groups + [portals], z, name, player)
-
         self.hitbox = self.rect.inflate((-self.size[0] * 0.8, -self.size[1] * 0.8))
         self.interaction_hitbox = self.hitbox.inflate((self.hitbox.width * 1.3, self.hitbox.height * 1.3))
         self.z = LAYERS['Interactive']
@@ -127,20 +125,16 @@ class Door(Interactive):
         opened_door = pygame.transform.scale(pygame.image.load('../data/objects/open_door.png'),
                                              closed_door.get_size())
         self.z = LAYERS['Ground']
-        self.surfaces = [closed_door, opened_door]
-        self.current_surf = 0
-        self.image = self.surfaces[self.current_surf]
+        self.images = cycle([closed_door, opened_door])
+        self.image = closed_door
+        self.hitbox_active = True
 
     def clicked(self):
         self.change_surf()
 
     def change_surf(self):
-        if self.current_surf == 0:
-            self.current_surf = 1
-        else:
-            self.current_surf = 0
-        self.active = not self.is_active
-        self.image = self.surfaces[self.current_surf]
+        self.image = next(self.images)
+        self.hitbox_active = not self.hitbox_active
 
 
 class Chest(Interactive):
@@ -149,19 +143,14 @@ class Chest(Interactive):
         opened_chest = surf
         closed_chest = pygame.transform.scale(pygame.image.load('../data/objects/open_chest.png'),
                                               opened_chest.get_size())
-        self.surfaces = [opened_chest, closed_chest]
-        self.current_surf = 0
-        self.image = self.surfaces[self.current_surf]
+        self.images = cycle([opened_chest, closed_chest])
+        self.image = surf
 
     def clicked(self):
         self.change_surf()
 
     def change_surf(self):
-        if self.current_surf == 0:
-            self.current_surf = 1
-        else:
-            self.current_surf = 0
-        self.image = self.surfaces[self.current_surf]
+        self.image = next(self.images)
 
 
 class Arch(Interactive):
