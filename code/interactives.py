@@ -35,7 +35,8 @@ class Interactive(GenericObject):
         super().__init__(pos, surf, groups, z)
         self.name = name
         self.player = player
-        self.is_active = self.choose_activity_by_type(name)
+        self.is_interactive = self.choose_activity_by_type(name)
+        self.is_collidable = True
         self.size = surf.get_size()
         self.interaction_hitbox = self.hitbox.inflate((20, 20))
 
@@ -46,7 +47,7 @@ class Interactive(GenericObject):
         pass
 
     def is_hovered(self, mouse_position):
-        return self.is_active and \
+        return self.is_interactive and \
                self.interaction_hitbox.collidepoint(mouse_position) and \
                self.interaction_hitbox.colliderect(self.player)
 
@@ -102,11 +103,11 @@ class Portal(Interactive):
 
     def teleport(self):  # TODO механика телепорта и создания группы телепортов неудобна, нужно исправить
         if self.name == 'portal_enter':
-            pos = self.groups()[2].sprites()[1].pos
-            self.player.pos = pygame.math.Vector2(pos[0] + self.size[0], pos[1] + self.size[1] * 2)
+            pos = self.groups()[2].sprites()[1].interaction_hitbox.midbottom
+            self.player.pos = pygame.math.Vector2(pos)
         else:
-            pos = self.groups()[2].sprites()[0].pos
-            self.player.pos = pygame.math.Vector2(pos[0] + self.size[0], pos[1] + self.size[1] * 2)
+            pos = self.groups()[2].sprites()[0].interaction_hitbox.midbottom
+            self.player.pos = pygame.math.Vector2(pos)
 
     def clicked(self):
         return 'teleport'
@@ -116,6 +117,8 @@ class Ladder(Interactive):
     def __init__(self, pos, surf, groups, z, name, player):
         super().__init__(pos, surf, groups, z, name, player)
         self.z = LAYERS['Interactive']
+        self.is_collidable = False
+        self.interaction_hitbox = None
 
 
 class Door(Interactive):
@@ -124,17 +127,20 @@ class Door(Interactive):
         closed_door = surf
         opened_door = pygame.transform.scale(pygame.image.load('../data/objects/open_door.png'),
                                              closed_door.get_size())
-        self.z = LAYERS['Ground']
-        self.images = cycle([closed_door, opened_door])
+        self.z = LAYERS['Decorations']
+        self.images = cycle([opened_door, closed_door])
         self.image = closed_door
-        self.hitbox_active = True
+
+        self.hitbox.top += 50
+        self.hitbox = self.hitbox.inflate((0,-80))
+        self.interaction_hitbox = self.hitbox.inflate((30, 50))
 
     def clicked(self):
         self.change_surf()
 
     def change_surf(self):
         self.image = next(self.images)
-        self.hitbox_active = not self.hitbox_active
+        self.is_collidable = not self.is_collidable
 
 
 class Chest(Interactive):
@@ -156,3 +162,6 @@ class Chest(Interactive):
 class Arch(Interactive):
     def __init__(self, pos, surf, groups, z, name, player):
         super().__init__(pos, surf, groups, z, name, player)
+        self.is_collidable = False
+        self.z = LAYERS['Decorations']+1
+        self.interaction_hitbox = None

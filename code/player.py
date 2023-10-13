@@ -94,7 +94,9 @@ class Player(pygame.sprite.Sprite):
 
                 if sprite.name == 'ladder' and self.rect.colliderect(sprite.hitbox):
                     self.collide_ladders(sprite)
-                elif self.rect.colliderect(sprite.hitbox) and sprite.is_active:
+                elif self.rect.colliderect(sprite.hitbox) and sprite.is_interactive and sprite.is_collidable:
+                    if 'door' in sprite.name:
+                        print(1)
                     self.collide(sprite, direction)
             for sprite in self.collision_sprites.sprites():
                 if hasattr(sprite, 'hitbox') and sprite.hitbox and sprite.hitbox_status:

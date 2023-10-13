@@ -78,7 +78,7 @@ class Level:
                  surf=self.resize_surf(surf),
                  groups=self.all_sprites,
                  z='Second_floor_roof')
-        for obj in tmx_data.get_layer_by_name('Trees'):
+        for obj in tmx_data.get_layer_by_name('Trees'): # TODO исправить баг с застреванием в текстурах у деревьев с определённой моделью
             Tree(pos=self.change_object_pos((obj.x, obj.y)),
                  surf=self.resize_surf(obj.image),
                  groups=[self.all_sprites, self.collision_sprites],
@@ -172,7 +172,7 @@ class CameraGroup(pygame.sprite.Group):
                     self.display_surface.blit(sprite.image, offset_rect)
 
                     if DEBUG:
-                        if hasattr(sprite, 'interaction_hitbox'):
+                        if hasattr(sprite, 'interaction_hitbox') and sprite.interaction_hitbox:
                             hitbox_copy = sprite.interaction_hitbox.copy()
                             hitbox_copy.center -= self.offset
                             pygame.draw.rect(self.display_surface, 'blue', hitbox_copy, 10)

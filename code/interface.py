@@ -34,7 +34,7 @@ class Button(pygame.sprite.Sprite):
         self.window.cur_page -= 1 if self.window.cur_page > 0 else 0
 
     def is_hovered(self, mouse_position):
-        return self.window.is_active and self.interaction_hitbox.collidepoint(mouse_position)
+        return self.window.is_interactive and self.interaction_hitbox.collidepoint(mouse_position)
 
 
 class Window:
