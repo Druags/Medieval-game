@@ -97,7 +97,7 @@ class UserInterface:
                     self.change_cursor()
                     break
         elif not self.check_hover(self.hovered_sprite):
-            self.hovered_sprite.is_hovered()
+            # self.hovered_sprite.is_hovered()
             self.change_cursor()
             self.hovered_sprite = None
 

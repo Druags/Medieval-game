@@ -44,18 +44,24 @@ class Level:
         self.group = CustomGroup()
         self.player = Player(self.group)
 
+        self.rect = pygame.Rect(100, 100, 100, 100)
+        self.inflation = -50
+        self.test_rect = self.rect.inflate((0,self.inflation))
+        self.test_rect.bottom = self.rect.bottom
         self.setup()
 
     def setup(self):
-        self.objects = [Interactive(self.group) for _ in range(5)]
-        self.interface = UserInterface(self.objects, self.player)
+        pass
+        # self.objects = [Interactive(self.group) for _ in range(5)]
+        # self.interface = UserInterface(self.objects, self.player)
 
     def run(self, dt):
         self.display_surface.fill('black')
-
+        pygame.draw.rect(self.display_surface, 'red', self.rect)
+        pygame.draw.rect(self.display_surface, 'green', self.test_rect)
         self.group.custom_draw()
         self.group.update()
-        self.interface.update()
+        # self.interface.update()
 
 
 class CustomGroup(pygame.sprite.Group):

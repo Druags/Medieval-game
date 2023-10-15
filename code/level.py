@@ -28,7 +28,7 @@ class Level:
     def resize_surf(self, surf):
         return pygame.transform.scale(surf,
                                       (surf.get_size()[0] * self.size_difference[0],
-                                       surf.get_size()[1] * self.size_difference[1]))
+                                       surf.get_size()[1] * self.size_difference[1])).convert_alpha()
 
     def change_object_pos(self, pos):
         return [pos[i] * self.size_difference[i] for i in range(2)]
@@ -170,6 +170,7 @@ class CameraGroup(pygame.sprite.Group):
                     copy_sight.center -= self.offset
 
                     self.display_surface.blit(sprite.image, offset_rect)
+
 
                     if DEBUG:
                         if hasattr(sprite, 'interaction_hitbox') and sprite.interaction_hitbox:

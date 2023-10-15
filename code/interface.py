@@ -34,7 +34,7 @@ class Button(pygame.sprite.Sprite):
         self.window.cur_page -= 1 if self.window.cur_page > 0 else 0
 
     def is_hovered(self, mouse_position):
-        return self.window.is_interactive and self.interaction_hitbox.collidepoint(mouse_position)
+        return self.window.is_active and self.interaction_hitbox.collidepoint(mouse_position)
 
 
 class Window:
@@ -186,7 +186,7 @@ class UserInterface:
         self.cursor_visibility = pygame.mouse.get_visible()
         pygame.mouse.set_visible(not self.cursor_visibility)
 
-    def cursor_in_hover_status(self):
+    def draw_cursor_in_hover_status(self):
         self.text_rect.center = pygame.mouse.get_pos()
         text_x = self.text_rect.topleft[0] + (self.text_rect.width - self.text_size[0]) // 2
         text_y = self.text_rect.topleft[1] + (self.text_rect.height - self.text_size[1]) // 2
@@ -224,7 +224,7 @@ class UserInterface:
             self.window.update()
             self.input()
             if self.cursor_visibility:
-                self.cursor_in_hover_status()
+                self.draw_cursor_in_hover_status()
         else:
             self.screen_transition.play()
             if self.screen_transition.dark:

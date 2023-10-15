@@ -121,19 +121,19 @@ class Ladder(Interactive):
         self.interaction_hitbox = None
 
 
-class Door(Interactive):
+class Door(Interactive):  # TODO из-за отсутствия коллизии происходит отрисовка игрока поверх двери
     def __init__(self, pos, surf, groups, z, name, player):
         super().__init__(pos, surf, groups, z, name, player)
         closed_door = surf
         opened_door = pygame.transform.scale(pygame.image.load('../data/objects/open_door.png'),
                                              closed_door.get_size())
-        self.z = LAYERS['Decorations']
+
         self.images = cycle([opened_door, closed_door])
         self.image = closed_door
 
-        self.hitbox.top += 50
-        self.hitbox = self.hitbox.inflate((0,-80))
+        self.hitbox = self.hitbox.inflate((0,-50))
         self.interaction_hitbox = self.hitbox.inflate((30, 50))
+        self.hitbox.bottom = self.rect.bottom
 
     def clicked(self):
         self.change_surf()
@@ -163,5 +163,4 @@ class Arch(Interactive):
     def __init__(self, pos, surf, groups, z, name, player):
         super().__init__(pos, surf, groups, z, name, player)
         self.is_collidable = False
-        self.z = LAYERS['Decorations']+1
         self.interaction_hitbox = None
