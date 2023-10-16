@@ -58,33 +58,38 @@ class Level:
                  surf=self.resize_surf(surf),
                  groups=[self.all_sprites, self.collision_sprites],
                  wall_type='front')
+
         for x, y, surf in tmx_data.get_layer_by_name('Walls_back').tiles():
             Wall(pos=self.change_tile_pos((x, y)),
                  surf=self.resize_surf(surf),
                  groups=[self.all_sprites, self.collision_sprites],
                  wall_type='back')
+
         for x, y, surf in tmx_data.get_layer_by_name('Walls_front_second_floor').tiles():
             Wall(pos=self.change_tile_pos((x, y)),
                  surf=self.resize_surf(surf),
                  groups=[self.all_sprites, self.collision_sprites],
                  wall_type='front_second_floor')
+
         for x, y, surf in tmx_data.get_layer_by_name('Roof_1').tiles():
             Roof(pos=self.change_tile_pos((x, y)),
                  surf=self.resize_surf(surf),
                  groups=self.all_sprites,
                  z='Walls_back')
+
         for x, y, surf in tmx_data.get_layer_by_name('Roof_2').tiles():
             Roof(pos=self.change_tile_pos((x, y)),
                  surf=self.resize_surf(surf),
                  groups=self.all_sprites,
                  z='Second_floor_roof')
+
         for obj in tmx_data.get_layer_by_name('Trees'): # TODO исправить баг с застреванием в текстурах у деревьев с определённой моделью
             Tree(pos=self.change_object_pos((obj.x, obj.y)),
                  surf=self.resize_surf(obj.image),
                  groups=[self.all_sprites, self.collision_sprites],
                  z='Trees')
-        for obj in tmx_data.get_layer_by_name('Interactive_objects'):
 
+        for obj in tmx_data.get_layer_by_name('Interactive_objects'):
             create_interactive(pos=self.change_object_pos((obj.x, obj.y)),
                                surf=self.resize_surf(obj.image),
                                name=obj.name,
@@ -93,6 +98,7 @@ class Level:
                                player=self.player,
                                content=obj.content if hasattr(obj, 'content') else None,
                                special_group=self.portals)
+
         for obj in tmx_data.get_layer_by_name('Interactive_objects_second_floor'):
             create_interactive(pos=self.change_object_pos((obj.x, obj.y)),
                                surf=self.resize_surf(obj.image),
@@ -102,23 +108,27 @@ class Level:
                                player=self.player,
                                content=obj.content if hasattr(obj, 'content') else None,
                                special_group=self.portals)
+
         for obj in tmx_data.get_layer_by_name('Buildings'):
             Building(pos=self.change_object_pos((obj.x, obj.y)),
                      surf=self.resize_surf(obj.image),
                      groups=[self.all_sprites, self.collision_sprites],
                      z='Second_floor_buildings')
+
         for layer in ['Stones', 'Small_plants']:
             for obj in tmx_data.get_layer_by_name(layer):
                 Decoration(pos=self.change_object_pos((obj.x, obj.y)),
                            surf=self.resize_surf(obj.image),
                            groups=[self.all_sprites],
                            z='Decorations')
+
         for obj in tmx_data.get_layer_by_name('Borders_first_floor'):
             Border(pos=self.change_object_pos((round(obj.x), round(obj.y))),
                    size=(round(obj.width)*self.size_difference[0], round(obj.height)*self.size_difference[1]),
                    groups=[self.borders],
                    floor=0
                    )
+
         for obj in tmx_data.get_layer_by_name('Borders_second_floor'):
             Border(pos=self.change_object_pos((round(obj.x), round(obj.y))),
                    size=(round(obj.width)*self.size_difference[0], round(obj.height)*self.size_difference[1]),
@@ -163,14 +173,9 @@ class CameraGroup(pygame.sprite.Group):
                 if sprite.rect.colliderect(player.line_of_sight) and sprite.z == layer:
                     offset_rect = sprite.rect.copy()
                     offset_rect.center -= self.offset
-
                     if isinstance(sprite, Player):
                         offset_rect.top -= 10
-                    copy_sight = player.line_of_sight.copy()
-                    copy_sight.center -= self.offset
-
                     self.display_surface.blit(sprite.image, offset_rect)
-
 
                     if DEBUG:
                         if hasattr(sprite, 'interaction_hitbox') and sprite.interaction_hitbox:

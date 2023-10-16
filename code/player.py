@@ -16,7 +16,7 @@ class Player(pygame.sprite.Sprite):
 
         self.collision_sprites = collision_sprites
         self.interactive_sprites = interactive_sprites
-        self.borders = borders
+        self.borders_group = borders
 
         self.z = LAYERS['Main']
 
@@ -27,8 +27,6 @@ class Player(pygame.sprite.Sprite):
         self.line_of_sight = self.rect.copy().inflate((SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2))
 
         self.current_floor = 0
-
-        self.active_item = None
 
         self.timers = {
             'ladder_timer': Timer(1000),
@@ -80,28 +78,28 @@ class Player(pygame.sprite.Sprite):
                 self.rect.centery = self.hitbox.centery
                 self.pos.y = self.hitbox.centery
 
-    def collide_ladders(self, sprite):
-        if self.direction.y == -1 and sprite.rect.collidepoint(self.rect.midbottom):
+    def collide_ladder(self):
+        if self.direction.y == -1 and self.current_floor != 1:
             self.z = LAYERS['Second_floor']
             self.current_floor = 1
-        elif self.direction.y == 1 and sprite.rect.collidepoint(self.rect.midtop):
+        elif self.direction.y == 1 and self.current_floor != 0:
             self.z = LAYERS['Main']
             self.current_floor = 0
 
     def collision_check(self, direction):
         if self.hitbox_active:
             for sprite in self.interactive_sprites.sprites():
-
                 if sprite.name == 'ladder' and self.rect.colliderect(sprite.hitbox):
-                    self.collide_ladders(sprite)
-                elif self.rect.colliderect(sprite.hitbox) and sprite.is_interactive and sprite.is_collidable:
-                    self.collide(sprite, direction)
-            for sprite in self.collision_sprites.sprites():
-                if hasattr(sprite, 'hitbox') and sprite.hitbox and sprite.hitbox_status:
+                    self.collide_ladder()
+                elif sprite.is_collidable and self.rect.colliderect(sprite.hitbox):
                     self.collide(sprite, direction)
 
-            for sprite in self.borders.sprites():
-                if sprite.floor == self.current_floor:
+            for sprite in self.collision_sprites.sprites():
+                if sprite.hitbox and self.rect.colliderect(sprite.hitbox):
+                    self.collide(sprite, direction)
+
+            for sprite in self.borders_group.sprites():
+                if sprite.floor == self.current_floor and self.rect.colliderect(sprite.hitbox):
                     self.collide(sprite, direction)
 
     def move(self, dt):
@@ -123,7 +121,6 @@ class Player(pygame.sprite.Sprite):
         self.line_of_sight.center = (round(self.hitbox.x), round(self.hitbox.y))
 
     def update(self, dt):
-        print(self.z)
         self.input()
         self.update_timers()
         self.move(dt)
